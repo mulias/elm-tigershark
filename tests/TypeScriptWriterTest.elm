@@ -1,4 +1,4 @@
-module Example exposing (..)
+module TypeScriptWriterTest exposing (..)
 
 import Expect
 import String.Interpolate exposing (interpolate)
