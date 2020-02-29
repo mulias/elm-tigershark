@@ -5,14 +5,15 @@ programs. Based off of `elm-typescript-interop`.
 
 ### Roadmap
 
-- [ ] Setup typescript and elm project
-- [ ] Setup elm testing
+- [x] Setup typescript and elm project
+- [x] Setup elm testing
 - [ ] Use `elm-syntax` to parse file contents and create basic type declaration
 - [ ] Parse elm types into typescript types
 - [ ] Add types for flags
 - [ ] Add types for all ports in file
 - [ ] CLI tool
 - [ ] Multi-module typing
+- [ ] Support pre-0.19 elm
 - [ ] Refine port types to only include ports in compiled js
 
 ### The name
