@@ -1,14 +1,15 @@
 module ExampleModules exposing (..)
 
 
-counter : String
 counter =
-    """module Counter exposing (main)
+    """
+module Counter exposing (main)
 
 import Browser
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
 
+main : Program () Int Msg
 main =
   Browser.sandbox { init = 0, update = update, view = view }
 
@@ -27,16 +28,24 @@ view model =
     [ button [ onClick Decrement ] [ text "-" ]
     , div [] [ text (String.fromInt model) ]
     , button [ onClick Increment ] [ text "+" ]
-    ]"""
+    ]
+"""
 
 
-noModuleStatement : String
-noModuleStatement =
+parsingFailure =
+    """
+module BadSadCode exposing (..)
+
+main = type 3"""
+
+
+missingModuleDefinition =
     """import Browser
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
 
 
+main : Program () String msg
 main =
     Browser.sandbox { init = "World", update = update, view = view }
 
@@ -51,4 +60,40 @@ update _ model =
 
 
 view name =
-    div [] [ div [] [ text <| "Hello " ++ name ++ "!" ] ]"""
+    div [] [ div [] [ text <| "Hello " ++ name ++ "!" ] ]
+"""
+
+
+missingMainFunction =
+    """
+module NoMain exposing (..)
+
+five = 12
+"""
+
+
+missingMainSignature =
+    """
+module NoMainSig exposing (main)
+
+main =
+  Browser.sandbox { init = 0, update = update, view = div [] [] }
+
+update : msg -> Model -> Model
+update _ model =
+    model
+"""
+
+
+nestedMainModuleUnsupported =
+    """
+module Nested.Main.Module exposing (main)
+
+main : Program () Int msg
+main =
+  Browser.sandbox { init = 0, update = update, view = div [] [] }
+
+update : msg -> Model -> Model
+update _ model =
+    model
+"""

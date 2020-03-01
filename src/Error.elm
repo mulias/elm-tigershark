@@ -2,5 +2,9 @@ module Error exposing (Error(..))
 
 
 type Error
-    = Parsing String
-    | Unsupported String
+    = ParsingFailure
+    | MissingModuleDefinition
+    | MissingModuleName
+    | MissingMainFunction
+    | MissingMainSignature
+    | NestedMainModuleUnsupported

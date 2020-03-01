@@ -6,36 +6,42 @@ import Test exposing (..)
 import TypeScript.Writer exposing (writeDeclarationFile)
 
 
-simpleDeclarationFile : String -> String
-simpleDeclarationFile moduleName =
-    interpolate """// WARNING: Do not manually modify this file. It was generated using:
+simpleDeclarationFile : String
+simpleDeclarationFile =
+    """// WARNING: Do not manually modify this file. It was generated using:
 // https://github.com/mulias/elm-tigershark
 // Type definitions for Elm ports
 
 export namespace Elm {
-  namespace {0} {
+  /** The Tigershark main */
+  namespace Tigershark {
     export interface App {
       ports: {};
     }
     export function init(options: {
       node?: HTMLElement | null;
-    }): Elm.{0}.App;
+      flags: { numSharks: number };
+    }): Elm.Tigershark.App;
   }
-}""" [ moduleName ]
+}"""
 
 
 suite : Test
 suite =
     describe "The Typescript.Writer module"
         [ describe "Typescript.Writer.writeDeclarationFile"
-            [ test "generates a simple declaration file" <|
+            [ test "creates a declaration file from formatted strings" <|
                 \_ ->
                     let
-                        moduleName =
-                            "Tigershark"
+                        content =
+                            { namespace = "Tigershark"
+                            , docs = "\n  /** The Tigershark main */"
+                            , flags = "\n      flags: { numSharks: number };"
+                            , ports = "{};"
+                            }
                     in
                     Expect.equal
-                        (writeDeclarationFile moduleName)
-                        (simpleDeclarationFile moduleName)
+                        (writeDeclarationFile content)
+                        simpleDeclarationFile
             ]
         ]
