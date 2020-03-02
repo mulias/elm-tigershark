@@ -1,9 +1,9 @@
-module TypeScriptWriterTest exposing (..)
+module DeclarationFileTest exposing (..)
 
 import Expect
 import String.Interpolate exposing (interpolate)
 import Test exposing (..)
-import TypeScript.Writer exposing (writeDeclarationFile)
+import TypeScript.DeclarationFile as DeclarationFile
 
 
 simpleDeclarationFile : String
@@ -13,10 +13,17 @@ simpleDeclarationFile =
 // Type definitions for Elm ports
 
 export namespace Elm {
-  /** The Tigershark main */
+  /** The Tigershark Elm program */
   namespace Tigershark {
     export interface App {
-      ports: {};
+      ports: {
+        ping: {
+          subscribe(callback: (data: null) => void): void;
+        };
+        pong: {
+          send(data: null): void;
+        };
+      };
     }
     export function init(options: {
       node?: HTMLElement | null;
@@ -35,13 +42,16 @@ suite =
                     let
                         content =
                             { namespace = "Tigershark"
-                            , docs = "\n  /** The Tigershark main */"
-                            , flags = "\n      flags: { numSharks: number };"
-                            , ports = "{};"
+                            , docs = Just "/** The Tigershark Elm program */"
+                            , flags = Just "{ numSharks: number }"
+                            , ports =
+                                [ { name = "ping", body = "subscribe(callback: (data: null) => void): void" }
+                                , { name = "pong", body = "send(data: null): void" }
+                                ]
                             }
                     in
                     Expect.equal
-                        (writeDeclarationFile content)
+                        (DeclarationFile.write content)
                         simpleDeclarationFile
             ]
         ]
