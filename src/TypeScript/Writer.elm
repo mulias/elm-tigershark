@@ -1,4 +1,4 @@
-module TypeScript.Writer exposing (blankLine, file, initFn, namespace, ports, prefix, toString)
+module TypeScript.Writer exposing (file, initFn, interface, namespace, newline, ports, prefix, toString)
 
 {-| Take the MainModule extracted from the elm files and construct a TypeScript
 declaration file.
@@ -20,12 +20,12 @@ toString (Writer { format, children }) =
 
 file : List Writer -> Writer
 file children =
-    Writer { format = String.join "\n", children = children }
+    Writer { format = String.join "", children = children }
 
 
-blankLine : Writer
-blankLine =
-    Writer { format = always "", children = [] }
+newline : Writer
+newline =
+    Writer { format = always "\n", children = [] }
 
 
 prefix : Writer
@@ -34,37 +34,73 @@ prefix =
         content =
             """// WARNING: Do not manually modify this file. It was generated using:
 // https://github.com/mulias/elm-tigershark
-// Type definitions for Elm ports"""
+// Type definitions for Elm ports
+"""
     in
     Writer { format = always content, children = [] }
 
 
-namespace : { name : String, docs : Maybe String } -> List Writer -> Writer
-namespace { name, docs } children =
+namespace : { docs : Maybe String, export : Bool, name : String } -> List Writer -> Writer
+namespace { docs, export, name } children =
     let
         docStr =
             docs
                 |> Maybe.map (\str -> str ++ "\n")
                 |> Maybe.withDefault ""
+
+        exportStr =
+            if export then
+                "export "
+
+            else
+                ""
+
+        format contents =
+            interpolate "{0}{1}namespace {2} {\n{3}\n}"
+                [ docStr, exportStr, name, indented 1 (String.join "\n" contents) ]
     in
     Writer
-        { format =
-            \contents ->
-                interpolate "{0}export namespace {1} {\n{2}\n}"
-                    [ docStr, name, indented 2 (String.join "\n" contents) ]
-        , children = children
-        }
+        { format = format, children = children }
+
+
+interface : { export : Bool, name : String } -> List Writer -> Writer
+interface { export, name } children =
+    let
+        exportStr =
+            if export then
+                "export "
+
+            else
+                ""
+
+        format contents =
+            interpolate "{0}interface {1} {\n{2}\n}"
+                [ exportStr, name, indented 1 (String.join "\n" contents) ]
+    in
+    Writer
+        { format = format, children = children }
 
 
 ports : List { name : String, body : String } -> Writer
 ports portDefs =
     let
-        content =
-            if List.isEmpty portDefs then
-                "ports: {};"
+        format contents =
+            interpolate "ports: {{0}{1}{2}};"
+                (if List.isEmpty contents then
+                    [ "", "", "" ]
 
-            else
-                "ports: {\n" ++ String.join "\n" portDefs ++ "\n};"
+                 else
+                    [ "\n", indented 1 (String.join "\n" contents), "\n" ]
+                )
+    in
+    Writer { format = format, children = List.map portDeclaration portDefs }
+
+
+portDeclaration : { name : String, body : String } -> Writer
+portDeclaration { name, body } =
+    let
+        content =
+            interpolate "{0}: {\n{1};\n};" [ name, indented 1 body ]
     in
     Writer { format = always content, children = [] }
 
@@ -74,13 +110,19 @@ initFn name flags =
     let
         flagsStr =
             flags
-                |> Maybe.map (\str -> "\nflags: " ++ str ++ ";")
+                |> Maybe.map (\str -> "flags: " ++ str ++ ";")
                 |> Maybe.withDefault ""
 
+        nextLine =
+            flags |> Maybe.map (always "\n") |> Maybe.withDefault ""
+
+        template =
+            """export function init(options: {
+  node?: HTMLElement | null;{0}{1}
+}): Elm.{2}.App;"""
+
         content =
-            interpolate """export function init(options: {
-      node?: HTMLElement | null;{0}
-    }): Elm.{1}.App;""" [ flagsStr, name ]
+            interpolate template [ nextLine, indented 1 flagsStr, name ]
     in
     Writer { format = always content, children = [] }
 

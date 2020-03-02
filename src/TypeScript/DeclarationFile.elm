@@ -19,12 +19,14 @@ write { namespace, docs, flags, ports } =
     Writer.toString <|
         Writer.file
             [ Writer.prefix
-            , Writer.blankLine
+            , Writer.newline
             , Writer.namespace
-                { name = "Elm", docs = Nothing }
+                { docs = Nothing, export = True, name = "Elm" }
                 [ Writer.namespace
-                    { name = namespace, docs = docs }
-                    [ Writer.ports ports
+                    { docs = docs, export = False, name = namespace }
+                    [ Writer.interface
+                        { export = True, name = "App" }
+                        [ Writer.ports ports ]
                     , Writer.initFn namespace flags
                     ]
                 ]
