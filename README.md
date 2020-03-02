@@ -12,9 +12,8 @@ programs. Based off of `elm-typescript-interop`.
 - [ ] Add types for flags
 - [ ] Add types for all ports in file
 - [ ] CLI tool
-- [ ] Multi-module typing
+- [ ] Multi-module parsing
 - [ ] Support pre-0.19 Elm
-- [ ] Refine port types to only include ports in compiled js
 
 ### Some notes
 
@@ -81,6 +80,7 @@ Things I'm thinking about now, but should be done way later.
     - Always collects local ports
 - Request files as needed from node, instead of reading all files during
   startup.
+- Flag to use local prettier install to format declaration files
 
 ### The name
 

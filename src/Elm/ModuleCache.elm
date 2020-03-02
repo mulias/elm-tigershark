@@ -47,10 +47,15 @@ type alias FileThunk =
     }
 
 
+{-| A cache of parsed and unparsed modules in the elm project.
+-}
 type alias ModuleCache =
     Dict ModuleKey FileThunk
 
 
+{-| Create a new cache. The cache should be initialized with every file in the
+elm project, although not all files will necessarily be parsed.
+-}
 fromList : List ( FilePath, ModuleSource ) -> ModuleCache
 fromList modules =
     List.foldl
