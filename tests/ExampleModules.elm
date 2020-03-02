@@ -3,7 +3,7 @@ module ExampleModules exposing (..)
 
 counter =
     """
-module Counter exposing (main)
+port module Counter exposing (main)
 
 import Browser
 import Html exposing (Html, button, div, text)
@@ -25,10 +25,10 @@ type Msg = Increment | Decrement
 update msg model =
   case msg of
     Increment ->
-      (model + 1, Cmd.none)
+      (model + 1, alert "up")
 
     Decrement ->
-      (model - 1, Cmd.none)
+      (model - 1, alert "down")
 
 view model =
   div []
@@ -36,6 +36,8 @@ view model =
     , div [] [ text (String.fromInt model) ]
     , button [ onClick Increment ] [ text "+" ]
     ]
+
+port alert : String -> Cmd msg
 """
 
 

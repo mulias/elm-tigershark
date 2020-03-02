@@ -1,4 +1,4 @@
-module Util.List exposing (findMap)
+module Util.List exposing (filterMap, findMap)
 
 import List
 
@@ -18,4 +18,21 @@ findMap mapFn lst =
                     found
         )
         Nothing
+        lst
+
+
+{-| Returns a list of all `Just` values produced by `mapFn`.
+-}
+filterMap : (a -> Maybe b) -> List a -> List b
+filterMap mapFn lst =
+    List.foldr
+        (\a acc ->
+            case mapFn a of
+                Just b ->
+                    b :: acc
+
+                Nothing ->
+                    acc
+        )
+        []
         lst

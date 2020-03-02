@@ -1,7 +1,8 @@
-module Elm.MainModule exposing (extract)
+module Elm.ProgramInterface exposing (extract)
 
-{-| Parse an Elm module and collect the parts of the AST relevant to the
-TypeScript declaration file.
+{-| Parse an Elm module, attempt to locate a `main` function with a `Program`
+type, and collect the parts of the AST relevant to the TypeScript declaration
+file for the program.
 -}
 
 import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..), toSignatureAST)
@@ -25,25 +26,21 @@ type alias ModuleName =
     Nonempty String
 
 
-type alias Ports =
-    List SignatureAST
-
-
-type alias MainModule =
+type alias ProgramInterface =
     { moduleName : ModuleName
-    , mainDocumentation : Maybe Documentation
+    , docs : Maybe Documentation
     , flags : TypeAnnotationAST
-    , ports : Ports
+    , ports : List SignatureAST
     }
 
 
-extract : File -> Result Error MainModule
+extract : File -> Result Error ProgramInterface
 extract file =
     let
         mainFunction =
             getMainFunction file
     in
-    Result.map4 MainModule
+    Result.map4 ProgramInterface
         (getModuleName file)
         (Result.map getDocumentation mainFunction)
         (Result.andThen getFlags mainFunction)
@@ -101,6 +98,24 @@ getFlags { signature } =
             )
 
 
-getPorts : File -> Ports
+getPorts : File -> List SignatureAST
 getPorts file =
-    []
+    let
+        isPortModule =
+            file.moduleDefinition |> Node.value |> Module.isPortModule
+    in
+    if isPortModule then
+        Util.List.filterMap getPortFromNode file.declarations
+
+    else
+        []
+
+
+getPortFromNode : Node Declaration -> Maybe SignatureAST
+getPortFromNode declarationNode =
+    case Node.value declarationNode of
+        PortDeclaration signature ->
+            Just (toSignatureAST signature)
+
+        _ ->
+            Nothing

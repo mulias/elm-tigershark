@@ -1,8 +1,8 @@
-module MainModuleTest exposing (..)
+module ProgramInterfaceTest exposing (..)
 
 import Elm.AST exposing (TypeAnnotationAST(..))
-import Elm.MainModule as MainModule
 import Elm.ModuleCache as ModuleCache
+import Elm.ProgramInterface as ProgramInterface
 import Error exposing (Error)
 import ExampleModules
 import Expect
@@ -14,22 +14,29 @@ import Test exposing (..)
 suite : Test
 suite =
     describe "The Elm.Reader module"
-        [ describe "Elm.MainModule.extract"
+        [ describe "Elm.ProgramInterface.extract"
             [ test "Collects module information needed for TS generation" <|
                 \_ ->
                     let
                         expect =
                             Ok
                                 { moduleName = List.Nonempty.fromElement "Counter"
-                                , mainDocumentation = Just "{-| Counter program. `startingNum` sets the initial count.\n-}"
+                                , docs = Just "{-| Counter program. `startingNum` sets the initial count.\n-}"
                                 , flags = RecordAST [ ( "startingNum", TypedAST ( [], "Int" ) [] ) ]
-                                , ports = []
+                                , ports =
+                                    [ { name = "alert"
+                                      , typeAnnotation =
+                                            FunctionTypeAnnotationAST
+                                                (TypedAST ( [], "String" ) [])
+                                                (TypedAST ( [], "Cmd" ) [ GenericTypeAST "msg" ])
+                                      }
+                                    ]
                                 }
 
                         result =
                             ModuleCache.fromList [ ( "Counter", ExampleModules.counter ) ]
                                 |> ModuleCache.readModule "Counter"
-                                |> Result.andThen (Tuple.first >> MainModule.extract)
+                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
                     in
                     Expect.equal expect result
             , test "fail when the module code is invalid" <|
@@ -41,7 +48,7 @@ suite =
                         result =
                             ModuleCache.fromList [ ( "BadSadCode", ExampleModules.parsingFailure ) ]
                                 |> ModuleCache.readModule "BadSadCode"
-                                |> Result.andThen (Tuple.first >> MainModule.extract)
+                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
                     in
                     Expect.equal expect result
             , test "fail when the module definition is missing" <|
@@ -53,7 +60,7 @@ suite =
                         result =
                             ModuleCache.fromList [ ( "Main", ExampleModules.missingModuleDefinition ) ]
                                 |> ModuleCache.readModule "Main"
-                                |> Result.andThen (Tuple.first >> MainModule.extract)
+                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
                     in
                     Expect.equal expect result
             , test "fail when the module does not have a main function" <|
@@ -65,7 +72,7 @@ suite =
                         result =
                             ModuleCache.fromList [ ( "NoMain", ExampleModules.missingMainFunction ) ]
                                 |> ModuleCache.readModule "NoMain"
-                                |> Result.andThen (Tuple.first >> MainModule.extract)
+                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
                     in
                     Expect.equal expect result
             , test "fail when the main function does not have a signature" <|
@@ -77,7 +84,7 @@ suite =
                         result =
                             ModuleCache.fromList [ ( "NoMainSig", ExampleModules.missingMainSignature ) ]
                                 |> ModuleCache.readModule "NoMainSig"
-                                |> Result.andThen (Tuple.first >> MainModule.extract)
+                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
                     in
                     Expect.equal expect result
             , skip <|
@@ -90,7 +97,7 @@ suite =
                             result =
                                 ModuleCache.fromList [ ( "Nested.Main.Module", ExampleModules.nestedMainModuleUnsupported ) ]
                                     |> ModuleCache.readModule "Nested.Main.Module"
-                                    |> Result.andThen (Tuple.first >> MainModule.extract)
+                                    |> Result.andThen (Tuple.first >> ProgramInterface.extract)
                         in
                         Expect.equal expect result
             ]
