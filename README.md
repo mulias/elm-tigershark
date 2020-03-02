@@ -23,19 +23,22 @@ let's generate a type declaration file!
     |
     v
 run `elm-tigershark src/MyApp.elm`   -----> Fail, file not found
+    |                                             elm project file not found
+    v                                             unsupported elm version
+initialize module cache
     |
     v
-parse module with `elm-syntax`       -----> Fail, invalid elm code
+parse module with `elm-syntax`       -----> Fail, unable to parse module source
     |
     v
-collect module name, main functiona  -----> Fail, no main or signature
+collect module name, main function   -----> Fail, no main or no signature
     |
     v
 extract flags type AST from main sig -----> Fail, main is not a `Program`
     |
     v
-if ports module, build dependency
-graph and collect port definitions
+if ports module, search module       -----> Fail, unable to find import
+cache and collect port definitions                unable to parse module source
     |
     v
 convert flags to InteropOrAliases    -----> Fail, type is not interoperable
@@ -45,9 +48,10 @@ convert ports to InteropOrAliases
 resolve local aliases                -----> Fail, type is not interoperable
     |
     v
-if aliases remain, build dependency  -----> Fail, alias type not found
-graph as needed, search graph                     type is not interoperable
-    |
+resolve imported aliases             -----> Fail, alias type not found
+    |                                             type is not interoperable
+    |                                             unable to find import
+    |                                             unable to parse module source
     v
 stringify module name, flags, ports
     |

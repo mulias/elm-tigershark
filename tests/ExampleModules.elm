@@ -9,19 +9,26 @@ import Browser
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
 
-main : Program () Int Msg
-main =
-  Browser.sandbox { init = 0, update = update, view = view }
+{-| Counter program. `startingNum` sets the initial count.
+-}
+main : Program { startingNum : Int } Int Msg
+main { startingNum } =
+    Browser.element
+        { init = startingNum
+        , update = update
+        , view = view
+        , subscriptions = always Sub.none
+        }
 
 type Msg = Increment | Decrement
 
 update msg model =
   case msg of
     Increment ->
-      model + 1
+      (model + 1, Cmd.none)
 
     Decrement ->
-      model - 1
+      (model - 1, Cmd.none)
 
 view model =
   div []

@@ -2,6 +2,7 @@ module MainModuleTest exposing (..)
 
 import Elm.AST exposing (TypeAnnotationAST(..))
 import Elm.MainModule as MainModule
+import Elm.ModuleCache as ModuleCache
 import Error exposing (Error)
 import ExampleModules
 import Expect
@@ -20,24 +21,15 @@ suite =
                         expect =
                             Ok
                                 { moduleName = List.Nonempty.fromElement "Counter"
-                                , mainSignature =
-                                    { name = "main"
-                                    , typeAnnotation =
-                                        TypedAST
-                                            ( [], "Program" )
-                                            [ UnitAST
-                                            , TypedAST ( [], "Int" ) []
-                                            , TypedAST ( [], "Msg" ) []
-                                            ]
-                                    }
-                                , mainDocumentation = Nothing
+                                , mainDocumentation = Just "{-| Counter program. `startingNum` sets the initial count.\n-}"
+                                , flags = RecordAST [ ( "startingNum", TypedAST ( [], "Int" ) [] ) ]
                                 , ports = []
                                 }
 
                         result =
-                            ExampleModules.counter
-                                |> MainModule.parse
-                                |> Result.andThen MainModule.extract
+                            ModuleCache.fromList [ ( "Counter", ExampleModules.counter ) ]
+                                |> ModuleCache.readModule "Counter"
+                                |> Result.andThen (Tuple.first >> MainModule.extract)
                     in
                     Expect.equal expect result
             , test "fail when the module code is invalid" <|
@@ -47,9 +39,9 @@ suite =
                             Err Error.ParsingFailure
 
                         result =
-                            ExampleModules.parsingFailure
-                                |> MainModule.parse
-                                |> Result.andThen MainModule.extract
+                            ModuleCache.fromList [ ( "BadSadCode", ExampleModules.parsingFailure ) ]
+                                |> ModuleCache.readModule "BadSadCode"
+                                |> Result.andThen (Tuple.first >> MainModule.extract)
                     in
                     Expect.equal expect result
             , test "fail when the module definition is missing" <|
@@ -59,9 +51,9 @@ suite =
                             Err Error.MissingModuleDefinition
 
                         result =
-                            ExampleModules.missingModuleDefinition
-                                |> MainModule.parse
-                                |> Result.andThen MainModule.extract
+                            ModuleCache.fromList [ ( "Main", ExampleModules.missingModuleDefinition ) ]
+                                |> ModuleCache.readModule "Main"
+                                |> Result.andThen (Tuple.first >> MainModule.extract)
                     in
                     Expect.equal expect result
             , test "fail when the module does not have a main function" <|
@@ -71,9 +63,9 @@ suite =
                             Err Error.MissingMainFunction
 
                         result =
-                            ExampleModules.missingMainFunction
-                                |> MainModule.parse
-                                |> Result.andThen MainModule.extract
+                            ModuleCache.fromList [ ( "NoMain", ExampleModules.missingMainFunction ) ]
+                                |> ModuleCache.readModule "NoMain"
+                                |> Result.andThen (Tuple.first >> MainModule.extract)
                     in
                     Expect.equal expect result
             , test "fail when the main function does not have a signature" <|
@@ -83,9 +75,9 @@ suite =
                             Err Error.MissingMainSignature
 
                         result =
-                            ExampleModules.missingMainSignature
-                                |> MainModule.parse
-                                |> Result.andThen MainModule.extract
+                            ModuleCache.fromList [ ( "NoMainSig", ExampleModules.missingMainSignature ) ]
+                                |> ModuleCache.readModule "NoMainSig"
+                                |> Result.andThen (Tuple.first >> MainModule.extract)
                     in
                     Expect.equal expect result
             , skip <|
@@ -96,9 +88,9 @@ suite =
                                 Err Error.NestedMainModuleUnsupported
 
                             result =
-                                ExampleModules.nestedMainModuleUnsupported
-                                    |> MainModule.parse
-                                    |> Result.andThen MainModule.extract
+                                ModuleCache.fromList [ ( "Nested.Main.Module", ExampleModules.nestedMainModuleUnsupported ) ]
+                                    |> ModuleCache.readModule "Nested.Main.Module"
+                                    |> Result.andThen (Tuple.first >> MainModule.extract)
                         in
                         Expect.equal expect result
             ]
