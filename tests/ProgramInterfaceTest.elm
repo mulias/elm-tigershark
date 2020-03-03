@@ -1,5 +1,10 @@
 module ProgramInterfaceTest exposing (..)
 
+{-| Test that given a module which is supposed to define a `main` of type
+`Program`, we successfully extract the details needed to build typescript
+types, or return an appropriate error.
+-}
+
 import Elm.AST exposing (TypeAnnotationAST(..))
 import Elm.ModuleCache as ModuleCache
 import Elm.ProgramInterface as ProgramInterface
@@ -87,18 +92,5 @@ suite =
                                 |> Result.andThen (Tuple.first >> ProgramInterface.extract)
                     in
                     Expect.equal expect result
-            , skip <|
-                test "Nested main module is unsupported" <|
-                    \_ ->
-                        let
-                            expect =
-                                Err Error.NestedMainModuleUnsupported
-
-                            result =
-                                ModuleCache.fromList [ ( "Nested.Main.Module", ExampleModules.nestedMainModuleUnsupported ) ]
-                                    |> ModuleCache.readModule "Nested.Main.Module"
-                                    |> Result.andThen (Tuple.first >> ProgramInterface.extract)
-                        in
-                        Expect.equal expect result
             ]
         ]

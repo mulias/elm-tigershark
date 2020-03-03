@@ -5,7 +5,7 @@ import TypeScript.Writer as Writer
 
 
 type alias DeclarationFile =
-    { namespace : String
+    { moduleName : String
     , docs : Maybe String
     , flags : Maybe String
     , ports : List { name : String, body : String }

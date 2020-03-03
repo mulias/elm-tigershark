@@ -1,5 +1,9 @@
 module DeclarationFileTest exposing (..)
 
+{-| Test that given the stringified components of a declaration file, we can
+correctly assemble the output.
+-}
+
 import Expect
 import String.Interpolate exposing (interpolate)
 import Test exposing (..)
@@ -35,13 +39,13 @@ export namespace Elm {
 
 suite : Test
 suite =
-    describe "The Typescript.Writer module"
-        [ describe "Typescript.Writer.writeDeclarationFile"
+    describe "The Typescript.DeclarationFile module"
+        [ describe "Typescript.DeclarationFile.write"
             [ test "creates a declaration file from formatted strings" <|
                 \_ ->
                     let
                         content =
-                            { namespace = "Tigershark"
+                            { moduleName = "Tigershark"
                             , docs = Just "/** The Tigershark Elm program */"
                             , flags = Just "{ numSharks: number }"
                             , ports =
