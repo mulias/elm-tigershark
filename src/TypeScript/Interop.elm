@@ -5,7 +5,6 @@ import Elm.Interop exposing (fromAST)
 import Elm.ProgramInterface exposing (ElmDocs, ProgramInterface)
 import Error exposing (Error)
 import Interop exposing (Interop(..))
-import List.Nonempty as NE
 import Result.Extra
 import TypeScript.DeclarationFile exposing (DeclarationFile, PortFunction, TSDocs, TypeString)
 

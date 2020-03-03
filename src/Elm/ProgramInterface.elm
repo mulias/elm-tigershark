@@ -17,7 +17,6 @@ import Elm.Syntax.Module as Module
 import Elm.Syntax.Node as Node exposing (Node(..))
 import Elm.Syntax.TypeAnnotation exposing (TypeAnnotation(..))
 import Error exposing (Error)
-import List.Nonempty exposing (Nonempty)
 import Parser exposing (deadEndsToString)
 import Util.List
 

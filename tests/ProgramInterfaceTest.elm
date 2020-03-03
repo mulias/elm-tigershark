@@ -11,7 +11,6 @@ import Elm.ProgramInterface as ProgramInterface
 import Error exposing (Error)
 import ExampleModules
 import Expect
-import List.Nonempty
 import String.Interpolate exposing (interpolate)
 import Test exposing (..)
 
