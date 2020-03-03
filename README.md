@@ -7,11 +7,15 @@ programs. Based off of `elm-typescript-interop`.
 
 - [x] Setup TypeScript and Elm project
 - [x] Setup Elm testing
-- [ ] Use `elm-syntax` to parse main module source and extract relivent ASTs
-- [ ] Parse interoperable Elm types into TypeScript types
-- [ ] Add types for flags
-- [ ] Add types for all ports in file
+- [x] Use `elm-syntax` to parse main module source and extract relivent ASTs
+- [x] Parse interoperable Elm types into TypeScript types
+- [x] Add types for flags
+- [x] Add types for all ports in file
+- [x] Parse a single module to a declaration file
+- [ ] De-alias local types
 - [ ] CLI tool
+- [ ] Good error messages
+- [ ] Programs in nested module
 - [ ] Multi-module parsing
 - [ ] Support pre-0.19 Elm
 
@@ -35,7 +39,7 @@ initialize module cache
     |
     v
 parse module with `elm-syntax`       -----> Fail, unable to find module in cache
-    |                                       unable to parse module source
+    |                                             unable to parse module source
     v
 collect module name, main function   -----> Fail, no main or no signature
     |
@@ -47,16 +51,9 @@ if ports module, search module       -----> Fail, unable to find import in cache
 cache and collect port definitions                unable to parse module source
     |
     v
-convert flags to InteropOrAliases    -----> Fail, type is not interoperable
-convert ports to InteropOrAliases
-    |
-    v
-resolve local aliases                -----> Fail, type is not interoperable
-    |
-    v
-resolve imported aliases             -----> Fail, alias type not found
-    |                                             type is not interoperable
-    |                                             unable to find import
+convert flags/ports to Typescript    -----> Fail, type is not interoperable
+type strings, resolve local and                   alias type not found
+imported aliases                                  unable to find import
     |                                             unable to parse module source
     v
 stringify module name, flags, ports
@@ -72,15 +69,16 @@ write output file                    -----> Fail, error writing output
 
 Things I'm thinking about now, but should be done way later.
 
-- Write custom "isPortsModule" parser so that we don't have to parse every
-  import to find ones that use ports.
+- Write custom "isPortsModule" parser so that we don't have to fully parse every
+  imported module to find ones that use ports.
 - Fuzz tests for
-    - Always extracts name from module
-    - Always converts flags of interoperable types
-    - Always collects local ports
+  - Always extracts name from module
+  - Always converts flags of interoperable types
+  - Always collects local ports
 - Request files as needed from node, instead of reading all files during
   startup.
 - Flag to use local prettier install to format declaration files
+- Use `elm-program-test` to test the worker program end-to-end.
 
 ### The name
 
