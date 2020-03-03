@@ -1,8 +1,9 @@
 module Elm.ModuleCache exposing (fromList, readModule)
 
-{-| Lazy evaluate and persist Elm modules. While collecting ports and resolving
-types it might be necessary to parse and then search through modules that are
-imported by the main module. The ModuleCache allows for only parsing
+{-| Lazy evaluate and persist Elm module ASTs. While collecting ports and
+resolving types it map be necessary to parse and then search through modules
+that are imported by the program module, or modules imported by modules
+imported by the program module, etc. The ModuleCache allows for only parsing
 modules as needed, and persisting the parsed files for re-reading.
 -}
 

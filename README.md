@@ -79,6 +79,7 @@ Things I'm thinking about now, but should be done way later.
   startup.
 - Flag to use local prettier install to format declaration files
 - Use `elm-program-test` to test the worker program end-to-end.
+- Windows file path support
 
 ### The name
 
