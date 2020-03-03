@@ -1,4 +1,4 @@
-module Elm.ProgramInterface exposing (extract)
+module Elm.ProgramInterface exposing (ProgramInterface, extract)
 
 {-| Parse an Elm module, attempt to locate a `main` function with a `Program`
 type, and collect the parts of the AST relevant to the TypeScript declaration

@@ -1,4 +1,4 @@
-module TypeScript.DeclarationFile exposing (write)
+module TypeScript.DeclarationFile exposing (DeclarationFile, write)
 
 import String.Interpolate exposing (interpolate)
 import TypeScript.Writer as Writer

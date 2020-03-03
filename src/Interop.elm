@@ -1,6 +1,10 @@
-module Interop exposing (..)
+module Interop exposing (Interop(..))
 
-import Dict exposing (Dict)
+{-| Convert from Elm type annotations to Typescript type strings, going through
+an intermediary `Interop` type. This middle type representation is technically
+unnecessary but the resulting code is cleaner than going from AST to string in
+one step.
+-}
 
 
 {-| The types that can be passed between Elm and TypeScript via flags and ports.
@@ -17,6 +21,7 @@ import Dict exposing (Dict)
     |  (a, b, c)         |  [A, B, C]   |  TupleType
     |  record            |  record      |  RecordType
     |  Json.Decode.Value |  any/unknown |  JsonType
+    |  Unit              |  null        |  UnitType
 
 -}
 type Interop
@@ -26,14 +31,6 @@ type Interop
     | MaybeType Interop
     | ArrayType Interop
     | TupleType (List Interop)
-    | RecordType (Dict String Interop)
+    | RecordType (List ( String, Interop ))
     | JsonType
-
-
-{-| Intermediate state when converting from an AST to Interop types. The basic
-types have been converted, but alias types may require much more work parsing
-and searching import files.
--}
-type InteropOrAliases
-    = Interoperable Interop
-    | Alias String
+    | UnitType

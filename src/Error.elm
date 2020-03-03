@@ -16,4 +16,7 @@ type Error
     | MissingMainSignature
     | MainNotAProgram
     | ImportedModuleNotFound
+    | UninteroperableType
     | NestedMainModuleUnsupported
+    | AliasTypesNotSupported
+    | UnknownPortSignature
