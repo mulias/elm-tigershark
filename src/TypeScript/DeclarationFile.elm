@@ -44,24 +44,42 @@ write { moduleParents, moduleName, docs, flags, ports } =
         , Writer.newline
         , Writer.namespace
             { docs = Nothing, export = True, name = "Elm" }
-            [ List.foldr
-                writeParentNamespace
-                (Writer.namespace
+            [ nestedParentNamespaces moduleParents
+                [ Writer.namespace
                     { docs = docs, export = False, name = moduleName }
                     [ Writer.interface
                         { export = True, name = "App" }
                         [ Writer.ports ports ]
                     , Writer.initFn { moduleName = moduleName, flags = flags }
                     ]
-                )
-                moduleParents
+                ]
             ]
         ]
         |> Writer.toString
 
 
-writeParentNamespace : String -> Writer -> Writer
-writeParentNamespace parentModuleName child =
-    Writer.namespace
-        { docs = Nothing, export = False, name = parentModuleName }
-        [ child ]
+{-| If the program module is nested in the module structure (probably a rare
+edge case), wrap the program module declaration in nested namespaces. For
+example:
+
+    ```
+    namespace Foo {
+      namespace Bar {
+        namespace Baz {
+          // program module declaration
+        }
+      }
+    }
+    ```
+
+-}
+nestedParentNamespaces : List String -> List Writer -> Writer
+nestedParentNamespaces parentModuleNames children =
+    List.foldr
+        (\parentModuleName child ->
+            Writer.namespace
+                { docs = Nothing, export = False, name = parentModuleName }
+                [ child ]
+        )
+        (Writer.lines children)
+        parentModuleNames
