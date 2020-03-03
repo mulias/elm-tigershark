@@ -5,7 +5,7 @@ import Elm.ProgramInterface as ProgramInterface
 import ExampleModules
 import Expect
 import Test exposing (..)
-import TypeScript.Interop exposing (toDeclarationFile)
+import TypeScript.Interop exposing (toProgramDeclaration)
 
 
 suite : Test
@@ -32,7 +32,7 @@ suite =
                             ModuleCache.fromList [ ( "Counter", ExampleModules.counter ) ]
                                 |> ModuleCache.readModule "Counter"
                                 |> Result.andThen (Tuple.first >> ProgramInterface.extract)
-                                |> Result.andThen toDeclarationFile
+                                |> Result.andThen toProgramDeclaration
                     in
                     Expect.equal expected result
             ]

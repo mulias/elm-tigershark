@@ -6,7 +6,7 @@ import ExampleModules
 import Expect
 import Test exposing (..)
 import TypeScript.DeclarationFile as DeclarationFile
-import TypeScript.Interop exposing (toDeclarationFile)
+import TypeScript.Interop exposing (toProgramDeclaration)
 
 
 suite : Test
@@ -22,8 +22,8 @@ suite =
                         ModuleCache.fromList [ ( "Counter", counterIn ) ]
                             |> ModuleCache.readModule "Counter"
                             |> Result.andThen (Tuple.first >> ProgramInterface.extract)
-                            |> Result.andThen toDeclarationFile
-                            |> Result.map DeclarationFile.write
+                            |> Result.andThen toProgramDeclaration
+                            |> Result.map (\declaration -> DeclarationFile.write [ declaration ])
                 in
                 Expect.equal expected result
         ]

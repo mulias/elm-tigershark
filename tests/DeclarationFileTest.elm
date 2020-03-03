@@ -44,7 +44,7 @@ suite =
             [ test "creates a declaration file from formatted strings" <|
                 \_ ->
                     let
-                        content =
+                        programDeclaration =
                             { moduleParents = []
                             , moduleName = "Tigershark"
                             , docs = Just "/** The Tigershark Elm program */"
@@ -56,7 +56,7 @@ suite =
                             }
                     in
                     Expect.equal
-                        (DeclarationFile.write content)
+                        (DeclarationFile.write [ programDeclaration ])
                         simpleDeclarationFile
             ]
         ]

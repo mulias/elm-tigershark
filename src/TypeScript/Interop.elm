@@ -1,4 +1,4 @@
-module TypeScript.Interop exposing (toDeclarationFile)
+module TypeScript.Interop exposing (toProgramDeclaration)
 
 import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..))
 import Elm.Interop exposing (fromAST)
@@ -6,7 +6,7 @@ import Elm.ProgramInterface exposing (ElmDocs, ProgramInterface)
 import Error exposing (Error)
 import Interop exposing (Interop(..))
 import Result.Extra
-import TypeScript.DeclarationFile exposing (DeclarationFile, PortFunction, TSDocs, TypeString)
+import TypeScript.DeclarationFile exposing (PortFunction, ProgramDeclaration, TSDocs, TypeString)
 
 
 {-| Specifies the part of the TypeScript declaration file in which the type
@@ -21,8 +21,8 @@ type TypeStringFor
 {-| Convert an Elm program interface to the strings needed to write a
 TypeScript declaration file.
 -}
-toDeclarationFile : ProgramInterface -> Result Error DeclarationFile
-toDeclarationFile p =
+toProgramDeclaration : ProgramInterface -> Result Error ProgramDeclaration
+toProgramDeclaration p =
     Result.map2
         (\flagsStr portStrs ->
             { moduleParents = p.moduleParents
