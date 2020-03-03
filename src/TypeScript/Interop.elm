@@ -2,12 +2,12 @@ module TypeScript.Interop exposing (toDeclarationFile)
 
 import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..))
 import Elm.Interop exposing (fromAST)
-import Elm.ProgramInterface exposing (ProgramInterface)
+import Elm.ProgramInterface exposing (ElmDocs, ProgramInterface)
 import Error exposing (Error)
 import Interop exposing (Interop(..))
 import List.Nonempty as NE
 import Result.Extra
-import TypeScript.DeclarationFile exposing (DeclarationFile)
+import TypeScript.DeclarationFile exposing (DeclarationFile, PortFunction, TSDocs, TypeString)
 
 
 {-| Specifies the part of the TypeScript declaration file in which the type
@@ -29,14 +29,14 @@ toDeclarationFile p =
         (Ok (Maybe.map docComment p.docs))
         (flags p.flags)
         (p.ports
-            |> List.map inboundOrOutboundPort
+            |> List.map portFunction
             |> Result.Extra.combine
         )
 
 
 {-| Convert from an Elm doc comment to a TypeScript doc comment.
 -}
-docComment : String -> String
+docComment : ElmDocs -> TSDocs
 docComment comment =
     let
         body =
@@ -49,10 +49,10 @@ docComment comment =
     "/** " ++ body ++ " */"
 
 
-{-| Returns the TypeScript type string for the flags passed to Elm. The value
+{-| Returns a TypeScript `TypeString` for the flags passed to Elm. The value
 is `Nothing` when there are no flags to pass.
 -}
-flags : TypeAnnotationAST -> Result Error (Maybe String)
+flags : TypeAnnotationAST -> Result Error (Maybe TypeString)
 flags typeAST =
     typeAST
         |> fromAST
@@ -66,12 +66,12 @@ flags typeAST =
             )
 
 
-{-| Returns the name of the port and the TypeScript function type string for
+{-| Returns the name of the port and the `TypeString` function declaration for
 either sending data to an inbound port or subscribing to data from an outbound
 port.
 -}
-inboundOrOutboundPort : SignatureAST -> Result Error { name : String, body : String }
-inboundOrOutboundPort { name, typeAnnotation } =
+portFunction : SignatureAST -> Result Error PortFunction
+portFunction { name, typeAnnotation } =
     case typeAnnotation of
         FunctionTypeAnnotationAST (FunctionTypeAnnotationAST inType _) (TypedAST ( [], "Sub" ) [ GenericTypeAST "msg" ]) ->
             inboundPort inType
@@ -85,7 +85,7 @@ inboundOrOutboundPort { name, typeAnnotation } =
             Err Error.UnknownPortSignature
 
 
-inboundPort : TypeAnnotationAST -> Result Error String
+inboundPort : TypeAnnotationAST -> Result Error TypeString
 inboundPort typeAST =
     typeAST
         |> fromAST
@@ -94,7 +94,7 @@ inboundPort typeAST =
             (\dataType -> "send(data: " ++ dataType ++ "): void")
 
 
-outboundPort : TypeAnnotationAST -> Result Error String
+outboundPort : TypeAnnotationAST -> Result Error TypeString
 outboundPort typeAST =
     typeAST
         |> fromAST
@@ -103,14 +103,14 @@ outboundPort typeAST =
             (\dataType -> "subscribe(callback: (data: " ++ dataType ++ ") => void): void")
 
 
-{-| Create a TypeScript type string that corresponds to the given Interop type.
+{-| Create a TypeScript `TypeString` that corresponds to the given Interop type.
 When the `target` argument is either `Flags` or `InboundPort`, we know that
 data is flowing from TypeScript to Elm. In this case we translate `JsonType` as
 a Typescript `any`, since Elm will accept and validate any value. When `target`
 is `OutboundPort`, data is flowing from Elm to TypeScript. In this case we
 translate `JsonType` as `unknown`, for similar reasons.
 -}
-toString : TypeStringFor -> Interop -> String
+toString : TypeStringFor -> Interop -> TypeString
 toString target interop =
     case interop of
         BooleanType ->

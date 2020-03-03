@@ -1,7 +1,25 @@
-module TypeScript.DeclarationFile exposing (DeclarationFile, write)
+module TypeScript.DeclarationFile exposing (DeclarationFile, PortFunction, TSDocs, TypeString, write)
 
 import String.Interpolate exposing (interpolate)
 import TypeScript.Writer as Writer
+
+
+{-| A valid TypeScript type, encoded in a string.
+-}
+type alias TypeString =
+    String
+
+
+{-| A jsdoc style doc comment.
+-}
+type alias TSDocs =
+    String
+
+
+{-| A "send" or "subscribe" function to interface with ports from TypeScript.
+-}
+type alias PortFunction =
+    { name : String, body : TypeString }
 
 
 {-| All of the formatted strings needed to build a declaration file. While
@@ -10,9 +28,9 @@ formatting such as indentation and ending semi-colons has not been applied.
 -}
 type alias DeclarationFile =
     { moduleName : String
-    , docs : Maybe String
-    , flags : Maybe String
-    , ports : List { name : String, body : String }
+    , docs : Maybe TSDocs
+    , flags : Maybe TypeString
+    , ports : List PortFunction
     }
 
 

@@ -1,4 +1,4 @@
-module Elm.ProgramInterface exposing (ProgramInterface, extract)
+module Elm.ProgramInterface exposing (ElmDocs, ProgramInterface, extract)
 
 {-| Parse an Elm module, attempt to locate a `main` function with a `Program`
 type, and collect the parts of the AST relevant to the TypeScript declaration
@@ -10,7 +10,7 @@ import Elm.Parser as Parser
 import Elm.Processing as Processing
 import Elm.RawFile as RawFile
 import Elm.Syntax.Declaration exposing (Declaration(..))
-import Elm.Syntax.Documentation exposing (Documentation)
+import Elm.Syntax.Documentation
 import Elm.Syntax.Expression exposing (Function, FunctionImplementation)
 import Elm.Syntax.File exposing (File)
 import Elm.Syntax.Module as Module
@@ -26,9 +26,13 @@ type alias ModuleName =
     Nonempty String
 
 
+type alias ElmDocs =
+    String
+
+
 type alias ProgramInterface =
     { moduleName : ModuleName
-    , docs : Maybe Documentation
+    , docs : Maybe ElmDocs
     , flags : TypeAnnotationAST
     , ports : List SignatureAST
     }
@@ -77,7 +81,7 @@ getMainFromNode declarationNode =
             Nothing
 
 
-getDocumentation : Function -> Maybe Documentation
+getDocumentation : Function -> Maybe ElmDocs
 getDocumentation { documentation } =
     Maybe.map Node.value documentation
 
