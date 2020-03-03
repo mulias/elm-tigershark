@@ -17,7 +17,8 @@ suite =
                     let
                         expected =
                             Ok
-                                { moduleName = "Counter"
+                                { moduleParents = []
+                                , moduleName = "Counter"
                                 , docs = Just "/** Counter program. `startingNum` sets the initial count. */"
                                 , flags = Just "{startingNum: number}"
                                 , ports =

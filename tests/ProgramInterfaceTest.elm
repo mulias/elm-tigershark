@@ -25,7 +25,8 @@ suite =
                     let
                         expect =
                             Ok
-                                { moduleName = List.Nonempty.fromElement "Counter"
+                                { moduleParents = []
+                                , moduleName = "Counter"
                                 , docs = Just "{-| Counter program. `startingNum` sets the initial count.\n-}"
                                 , flags = RecordAST [ ( "startingNum", TypedAST ( [], "Int" ) [] ) ]
                                 , ports =

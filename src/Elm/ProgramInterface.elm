@@ -22,16 +22,13 @@ import Parser exposing (deadEndsToString)
 import Util.List
 
 
-type alias ModuleName =
-    Nonempty String
-
-
 type alias ElmDocs =
     String
 
 
 type alias ProgramInterface =
-    { moduleName : ModuleName
+    { moduleParents : List String
+    , moduleName : String
     , docs : Maybe ElmDocs
     , flags : TypeAnnotationAST
     , ports : List SignatureAST
@@ -44,20 +41,37 @@ extract file =
         mainFunction =
             getMainFunction file
     in
-    Result.map4 ProgramInterface
-        (getModuleName file)
+    Result.map4
+        (\( moduleParents, moduleName ) docs flags ports ->
+            { moduleParents = moduleParents
+            , moduleName = moduleName
+            , docs = docs
+            , flags = flags
+            , ports = ports
+            }
+        )
+        (getNestedModuleName file)
         (Result.map getDocumentation mainFunction)
         (Result.andThen getFlags mainFunction)
         (Ok (getPorts file))
 
 
-getModuleName : File -> Result Error ModuleName
-getModuleName { moduleDefinition } =
-    moduleDefinition
-        |> Node.value
-        |> Module.moduleName
-        |> List.Nonempty.fromList
-        |> Result.fromMaybe Error.MissingModuleName
+getNestedModuleName : File -> Result Error ( List String, String )
+getNestedModuleName { moduleDefinition } =
+    case
+        moduleDefinition
+            |> Node.value
+            |> Module.moduleName
+            |> List.reverse
+    of
+        [] ->
+            Err Error.MissingModuleName
+
+        [ name ] ->
+            Ok ( [], name )
+
+        name :: parents ->
+            Ok ( List.reverse parents, name )
 
 
 getMainFunction : File -> Result Error Function

@@ -45,7 +45,8 @@ suite =
                 \_ ->
                     let
                         content =
-                            { moduleName = "Tigershark"
+                            { moduleParents = []
+                            , moduleName = "Tigershark"
                             , docs = Just "/** The Tigershark Elm program */"
                             , flags = Just "{ numSharks: number }"
                             , ports =

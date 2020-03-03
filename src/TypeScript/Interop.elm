@@ -24,14 +24,17 @@ TypeScript declaration file.
 -}
 toDeclarationFile : ProgramInterface -> Result Error DeclarationFile
 toDeclarationFile p =
-    Result.map4 DeclarationFile
-        (Ok (NE.head p.moduleName))
-        (Ok (Maybe.map docComment p.docs))
-        (flags p.flags)
-        (p.ports
-            |> List.map portFunction
-            |> Result.Extra.combine
+    Result.map2
+        (\flagsStr portStrs ->
+            { moduleParents = p.moduleParents
+            , moduleName = p.moduleName
+            , docs = Maybe.map docComment p.docs
+            , flags = flagsStr
+            , ports = portStrs
+            }
         )
+        (flags p.flags)
+        (p.ports |> List.map portFunction |> Result.Extra.combine)
 
 
 {-| Convert from an Elm doc comment to a TypeScript doc comment.

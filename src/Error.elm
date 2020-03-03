@@ -17,6 +17,5 @@ type Error
     | MainNotAProgram
     | ImportedModuleNotFound
     | UninteroperableType
-    | NestedMainModuleUnsupported
     | AliasTypesNotSupported
     | UnknownPortSignature

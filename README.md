@@ -12,10 +12,10 @@ programs. Based off of `elm-typescript-interop`.
 - [x] Add types for flags
 - [x] Add types for all ports in file
 - [x] Parse a single module to a declaration file
+- [x] Programs in nested module
 - [ ] De-alias local types
 - [ ] CLI tool
 - [ ] Good error messages
-- [ ] Programs in nested module
 - [ ] Multi-module parsing
 - [ ] Support pre-0.19 Elm
 

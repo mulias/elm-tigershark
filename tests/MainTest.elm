@@ -30,7 +30,7 @@ suite =
 
 
 counterIn =
-    """port module Counter exposing (main)
+    """port module Double.Nested.Counter exposing (main)
 
 import Browser
 import Html exposing (Html, button, div, text)
@@ -74,21 +74,25 @@ counterOut =
 // Type definitions for Elm ports
 
 export namespace Elm {
-  /** Counter program. `startingNum` sets the initial count. */
-  namespace Counter {
-    export interface App {
-      ports: {
-        incrementFromJS: {
-          send(data: null): void;
-        };
-        alert: {
-          subscribe(callback: (data: string) => void): void;
-        };
-      };
+  namespace Double {
+    namespace Nested {
+      /** Counter program. `startingNum` sets the initial count. */
+      namespace Counter {
+        export interface App {
+          ports: {
+            incrementFromJS: {
+              send(data: null): void;
+            };
+            alert: {
+              subscribe(callback: (data: string) => void): void;
+            };
+          };
+        }
+        export function init(options: {
+          node?: HTMLElement | null;
+          flags: {startingNum: number};
+        }): Elm.Counter.App;
+      }
     }
-    export function init(options: {
-      node?: HTMLElement | null;
-      flags: {startingNum: number};
-    }): Elm.Counter.App;
   }
 }"""
