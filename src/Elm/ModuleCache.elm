@@ -1,4 +1,4 @@
-module Elm.ModuleCache exposing (fromList, readModule)
+module Elm.ModuleCache exposing (fromList, parse, readModule)
 
 {-| Lazy evaluate and persist Elm module ASTs. While collecting ports and
 resolving types it map be necessary to parse and then search through modules

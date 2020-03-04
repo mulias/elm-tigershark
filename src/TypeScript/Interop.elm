@@ -84,7 +84,7 @@ portFunction { name, typeAnnotation } =
                 |> Result.map (\body -> { name = name, body = body })
 
         _ ->
-            Err Error.UnknownPortSignature
+            Err Error.InvalidPortSignature
 
 
 inboundPort : TypeAnnotationAST -> Result Error TypeString

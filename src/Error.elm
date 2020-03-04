@@ -1,4 +1,4 @@
-module Error exposing (Error(..))
+module Error exposing (Error(..), toString)
 
 {-| Catalog of possible failure cases in generating a type declaration file.
 The `Error` type accounts for errors in Elm, but some failure cases can happen
@@ -18,4 +18,38 @@ type Error
     | ImportedModuleNotFound
     | UninteroperableType
     | AliasTypesNotSupported
-    | UnknownPortSignature
+    | InvalidPortSignature
+
+
+toString : Error -> String
+toString error =
+    case error of
+        ParsingFailure ->
+            "ParsingFailure"
+
+        MissingModuleDefinition ->
+            "MissingModuleDefinition"
+
+        MissingModuleName ->
+            "MissingModuleName"
+
+        MissingMainFunction ->
+            "MissingMainFunction"
+
+        MissingMainSignature ->
+            "MissingMainSignature"
+
+        MainNotAProgram ->
+            "MainNotAProgram"
+
+        ImportedModuleNotFound ->
+            "ImportedModuleNotFound"
+
+        UninteroperableType ->
+            "UninteroperableType"
+
+        AliasTypesNotSupported ->
+            "AliasTypesNotSupported"
+
+        InvalidPortSignature ->
+            "InvalidPortSignature"
