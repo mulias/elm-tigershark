@@ -40,7 +40,11 @@ toString (Writer { format, children }) =
 -}
 file : List Writer -> Writer
 file children =
-    Writer { format = String.join "", children = children }
+    let
+        format contents =
+            contents |> String.join "" |> String.trimRight |> (\s -> s ++ "\n")
+    in
+    Writer { format = format, children = children }
 
 
 {-| Writer which concats each child on a new line.
