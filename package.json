@@ -6,10 +6,25 @@
   "repository": "git@github.com:mulias/elm-tigershark.git",
   "author": "Elias Mulhall <eli.mulhall@gmail.com>",
   "license": "BSD-3-Clause",
+  "scripts": {
+    "test": "elm-test",
+    "start": "webpack --watch --mode=development"
+  },
   "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/node": "^13.7.7",
+    "@types/webpack": "^4.41.7",
     "elm": "^0.19.1-3",
     "elm-format": "^0.8.2",
     "elm-test": "^0.19.1-revision2",
-    "typescript": "^3.8.3"
+    "elm-webpack-loader": "^6.0.1",
+    "prettier": "^1.19.1",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "glob": "^7.1.6"
   }
 }
