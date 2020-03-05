@@ -10,6 +10,9 @@
     "test": "elm-test",
     "start": "webpack --watch --mode=development"
   },
+  "bin": {
+    "tigershark": "bin/tigershark"
+  },
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/node": "^13.7.7",
