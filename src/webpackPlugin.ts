@@ -1,8 +1,6 @@
 import { ChildProcess, exec } from "child_process";
 import { Compiler } from "webpack";
 
-type Callback = () => void;
-
 const isElmFile = (f: string) => f.endsWith(".elm");
 
 /**
@@ -16,7 +14,7 @@ const getChangedFiles = (compiler: Compiler) => {
   return Object.keys(watcher.mtimes);
 };
 
-class ElmTigersharkPlugin {
+export class ElmTigersharkPlugin {
   process: ChildProcess | null;
   command: string;
 
@@ -28,7 +26,7 @@ class ElmTigersharkPlugin {
   apply(compiler: Compiler) {
     compiler.hooks.watchRun.tapAsync(
       "ElmTigersharkPlugin",
-      (passedCompiler: Compiler, done: Callback) => {
+      (passedCompiler: Compiler, done: () => void) => {
         const elmFileChanged = getChangedFiles(passedCompiler).some(isElmFile);
 
         if (!elmFileChanged) {
@@ -54,5 +52,3 @@ class ElmTigersharkPlugin {
     );
   }
 }
-
-export default ElmTigersharkPlugin;
