@@ -2,6 +2,15 @@ import { Elm } from "./Main.elm";
 import * as fs from "fs";
 import * as path from "path";
 
+var isWriting = false;
+
+process.on("SIGTERM", () => {
+  if (!isWriting) {
+    console.log("Process terminated early, no output written.");
+    process.exit(0);
+  }
+});
+
 const [_scriptRunner, _script, ...args] = process.argv;
 
 const versionFlag = args.includes("--version");
@@ -35,6 +44,8 @@ program.ports.writeFile.subscribe((declarations: string) => {
     fs.mkdirSync(outputFolder);
   }
 
+  isWriting = true;
   fs.writeFileSync(outputFile, declarations);
+  isWriting = false;
   process.exit(0);
 });
