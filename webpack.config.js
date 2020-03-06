@@ -1,5 +1,6 @@
 const webpack = require("webpack");
 const path = require("path");
+const { ElmTigersharkPlugin } = require("elm-tigershark");
 
 module.exports = (env, argv) => ({
   entry: {
@@ -29,6 +30,11 @@ module.exports = (env, argv) => ({
       { test: /\.ts$/, loader: "ts-loader" }
     ]
   },
+  plugins: [
+    new ElmTigersharkPlugin(
+      "elm make src/Main.elm --output=/dev/null && tigershark src/Main.elm --output=src/elm.d.ts"
+    )
+  ],
   resolve: {
     extensions: [".js", ".ts", ".elm"]
   }

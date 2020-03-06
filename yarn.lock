@@ -1060,6 +1060,13 @@ elm-test@^0.19.1-revision2:
     which "2.0.1"
     xmlbuilder "^13.0.2"
 
+elm-tigershark@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.3.tgz#23f5f6616163bbc98246a31b0972e92d5f60dcdb"
+  integrity sha512-S8qY3N6hfgZ7sXChAErdkkDLCwkyrFecDXgNZECPToGz1zK3sKtCWtemevv4UT2FKLkRyb7T4dMWdqUbnArrrg==
+  dependencies:
+    glob "^7.1.6"
+
 elm-webpack-loader@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/elm-webpack-loader/-/elm-webpack-loader-6.0.1.tgz#45db22979385f114cd56530700cef5b7f33cc9cb"
