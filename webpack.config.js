@@ -9,7 +9,8 @@ module.exports = (env, argv) => ({
   target: "node",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "[name].js"
+    filename: "[name].js",
+    libraryTarget: "commonjs2"
   },
   module: {
     rules: [
