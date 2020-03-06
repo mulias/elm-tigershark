@@ -4,6 +4,8 @@
     "module": "commonjs",
     "sourceMap": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationDir": "dist"
   }
 }
