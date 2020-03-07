@@ -4,7 +4,7 @@ import Elm.ModuleCache as Module
 import Elm.ProgramInterface as ProgramInterface
 import Error
 import TypeScript.DeclarationFile as DeclarationFile
-import TypeScript.Interop exposing (toProgramDeclaration)
+import TypeScript.ProgramDeclaration as ProgramDeclaration
 
 
 main : Program { inputFileSource : String } () ()
@@ -21,7 +21,7 @@ init { inputFileSource } =
     case
         Module.parse inputFileSource
             |> Result.andThen ProgramInterface.extract
-            |> Result.andThen toProgramDeclaration
+            |> Result.andThen ProgramDeclaration.assemble
             |> Result.map List.singleton
             |> Result.map DeclarationFile.write
     of

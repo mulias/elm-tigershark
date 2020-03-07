@@ -1,38 +1,8 @@
-module TypeScript.DeclarationFile exposing (PortFunction, ProgramDeclaration, TSDocs, TypeString, write)
+module TypeScript.DeclarationFile exposing (write)
 
 import String.Interpolate exposing (interpolate)
+import TypeScript.ProgramDeclaration exposing (ProgramDeclaration)
 import TypeScript.Writer as Writer exposing (Writer)
-
-
-{-| A valid TypeScript type, encoded in a string.
--}
-type alias TypeString =
-    String
-
-
-{-| A jsdoc style doc comment.
--}
-type alias TSDocs =
-    String
-
-
-{-| A "send" or "subscribe" function to interface with ports from TypeScript.
--}
-type alias PortFunction =
-    { name : String, body : TypeString }
-
-
-{-| All of the formatted strings needed to build a declaration file. While
-these parts of the declaration file are internally formatted, contextual
-formatting such as indentation and ending semi-colons has not been applied.
--}
-type alias ProgramDeclaration =
-    { moduleParents : List String
-    , moduleName : String
-    , docs : Maybe TSDocs
-    , flags : Maybe TypeString
-    , ports : List PortFunction
-    }
 
 
 {-| Construct the full declaration file and output the resulting string.

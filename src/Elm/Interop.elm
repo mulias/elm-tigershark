@@ -1,9 +1,41 @@
-module Elm.Interop exposing (fromAST)
+module Elm.Interop exposing (Interop(..), fromAST)
+
+{-| Convert from Elm type annotations to an `Interop` type, which represents
+the values that can be safely transfered through flags and ports.
+-}
 
 import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..))
 import Error exposing (Error)
-import Interop exposing (Interop(..))
 import Result.Extra
+
+
+{-| The types that can be passed between Elm and TypeScript via flags and ports.
+
+    |  Elm               |  TypeScript  |  Interop
+    |--------------------+--------------+-----------------
+    |  Bool              |  boolean     |  BooleanType
+    |  Int               |  number      |  NumberType
+    |  Float             |  number      |  NumberType
+    |  String            |  string      |  StringType
+    |  Maybe a           |  A | null    |  MaybeType
+    |  List a            |  Array<A>    |  ArrayType
+    |  Array a           |  Array<A>    |  ArrayType
+    |  (a, b, c)         |  [A, B, C]   |  TupleType
+    |  record            |  record      |  RecordType
+    |  Json.Decode.Value |  any/unknown |  JsonType
+    |  Unit              |  null        |  UnitType
+
+-}
+type Interop
+    = BooleanType
+    | NumberType
+    | StringType
+    | MaybeType Interop
+    | ArrayType Interop
+    | TupleType (List Interop)
+    | RecordType (List ( String, Interop ))
+    | JsonType
+    | UnitType
 
 
 {-| Construct an Interop type from the given Elm AST. Returns an error if the
