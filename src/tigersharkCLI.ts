@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { generateTypeDeclarations } from "./generateTypeDeclarations";
+import { tryReadConfig, isSupportedVersion } from "./elmConfig";
 
 var isWriting = false;
 
@@ -10,6 +11,13 @@ process.on("SIGTERM", () => {
     process.exit(0);
   }
 });
+
+const elmConfig = tryReadConfig();
+
+if (!isSupportedVersion(elmConfig)) {
+  console.log("Unsupported Elm version.");
+  process.exit(1);
+}
 
 const [_scriptRunner, _script, ...args] = process.argv;
 
