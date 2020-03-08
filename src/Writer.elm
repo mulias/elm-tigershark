@@ -1,4 +1,4 @@
-module Writer exposing (Writer, file, indented, lines, newline, toString, writer)
+module Writer exposing (Writer, file, lines, newline, toString, writer)
 
 {-| A simple templating system. Writers define structure in plain text, similar
 to how Elm's HTML library defines structure for webpages. A Writer encapsulates
@@ -56,24 +56,3 @@ lines children =
 newline : Writer
 newline =
     writer { format = always "\n", children = [] }
-
-
-{-| Indent every line in a multiline block the same amount. The indentation is
-in multiples of 2, so `amount` or 1 indents 2 spaces, `amount` 2 indents 4
-spaces, etc.
--}
-indented : Int -> String -> String
-indented amount code =
-    code
-        |> String.split "\n"
-        |> List.map (\line -> indentation amount ++ line)
-        |> String.join "\n"
-
-
-indentation : Int -> String
-indentation n =
-    if n == 0 then
-        ""
-
-    else
-        "  " ++ indentation (n - 1)
