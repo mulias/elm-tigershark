@@ -11,22 +11,15 @@ firstToLower string =
             ""
 
 
-{-| Indent every line in a multiline block the same amount. The indentation is
-in multiples of 2, so `amount` or 1 indents 2 spaces, `amount` 2 indents 4
-spaces, etc.
+{-| Indent every line in a multiline block the same amount.
 -}
 indented : Int -> String -> String
 indented amount code =
+    let
+        indentation =
+            String.pad amount ' ' ""
+    in
     code
         |> String.split "\n"
-        |> List.map (\line -> indentation amount ++ line)
+        |> List.map (\line -> indentation ++ line)
         |> String.join "\n"
-
-
-indentation : Int -> String
-indentation n =
-    if n == 0 then
-        ""
-
-    else
-        "  " ++ indentation (n - 1)

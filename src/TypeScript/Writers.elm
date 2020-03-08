@@ -38,7 +38,7 @@ declareModule name children =
     let
         format contents =
             interpolate "declare module {0} {\n{1}\n}"
-                [ name, indented 1 (join "\n" contents) ]
+                [ name, indented 2 (join "\n" contents) ]
     in
     writer
         { format = format, children = children }
@@ -71,7 +71,7 @@ namespace { docs, export, name } children =
 
         format contents =
             interpolate "{0}{1}namespace {2} {\n{3}\n}"
-                [ docStr, exportStr, name, indented 1 (join "\n" contents) ]
+                [ docStr, exportStr, name, indented 2 (join "\n" contents) ]
     in
     writer
         { format = format, children = children }
@@ -98,7 +98,7 @@ interface { export, name } children =
 
         format contents =
             interpolate "{0}interface {1} {\n{2}\n}"
-                [ exportStr, name, indented 1 (join "\n" contents) ]
+                [ exportStr, name, indented 2 (join "\n" contents) ]
     in
     writer
         { format = format, children = children }
@@ -130,7 +130,7 @@ portFns portDefs =
                     [ "", "", "" ]
 
                  else
-                    [ "\n", indented 1 (join "\n" contents), "\n" ]
+                    [ "\n", indented 2 (join "\n" contents), "\n" ]
                 )
     in
     writer { format = format, children = List.map portDeclaration portDefs }
@@ -142,7 +142,7 @@ portDeclaration : { name : String, body : String } -> Writer
 portDeclaration { name, body } =
     let
         content =
-            interpolate "{0}: {\n{1};\n};" [ name, indented 1 body ]
+            interpolate "{0}: {\n{1};\n};" [ name, indented 2 body ]
     in
     writer { format = always content, children = [] }
 
@@ -168,6 +168,6 @@ initFn { moduleName, flags } =
 }): Elm.{2}.App;"""
 
         content =
-            interpolate template [ nextLine, indented 1 flagsStr, moduleName ]
+            interpolate template [ nextLine, indented 2 flagsStr, moduleName ]
     in
     writer { format = always content, children = [] }
