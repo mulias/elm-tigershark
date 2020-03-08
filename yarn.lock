@@ -1067,6 +1067,14 @@ elm-tigershark@^0.0.3:
   dependencies:
     glob "^7.1.6"
 
+elm-tigershark@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.4.tgz#02f28fba37b7d38d06ccff097355609f5317747c"
+  integrity sha512-kvYbDEUojeLYPs1C67z6aofBRMbK+NgojxNx1V9NQqqPCL+F21w23QLpx9JRvvSb3XomgXeZLzW0XxmGjNDynw==
+  dependencies:
+    elm-tigershark "^0.0.3"
+    glob "^7.1.6"
+
 elm-webpack-loader@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/elm-webpack-loader/-/elm-webpack-loader-6.0.1.tgz#45db22979385f114cd56530700cef5b7f33cc9cb"
