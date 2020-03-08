@@ -9,12 +9,6 @@ import TypeScript.TSDoc as TSDoc
 import TypeScript.TypeString exposing (TypeString, TypeStringFor(..), toTypeString)
 
 
-{-| A jsdoc style doc comment.
--}
-type alias TSDocs =
-    String
-
-
 {-| A "send" or "subscribe" function to interface with ports from TypeScript.
 -}
 type alias PortFunction =
