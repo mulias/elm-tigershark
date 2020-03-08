@@ -14,27 +14,30 @@ simpleDeclarationFile : String
 simpleDeclarationFile =
     """// WARNING: Do not manually modify this file. It was generated using:
 // https://github.com/mulias/elm-tigershark
-// Type definitions for Elm ports
+// Type definitions for using Elm programs in TypeScript
 
-export namespace Elm {
-  /** The Tigershark Elm program */
-  namespace Tigershark {
-    export interface App {
-      ports: {
-        ping: {
-          subscribe(callback: (data: null) => void): void;
+declare module '*.elm' {
+  export namespace Elm {
+    /** The Tigershark Elm program */
+    namespace Tigershark {
+      export interface App {
+        ports: {
+          ping: {
+            subscribe(callback: (data: null) => void): void;
+          };
+          pong: {
+            send(data: null): void;
+          };
         };
-        pong: {
-          send(data: null): void;
-        };
-      };
+      }
+      export function init(options: {
+        node?: HTMLElement | null;
+        flags: { numSharks: number };
+      }): Elm.Tigershark.App;
     }
-    export function init(options: {
-      node?: HTMLElement | null;
-      flags: { numSharks: number };
-    }): Elm.Tigershark.App;
   }
-}"""
+}
+"""
 
 
 suite : Test

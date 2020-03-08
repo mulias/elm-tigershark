@@ -6,7 +6,7 @@ import ExampleModules
 import Expect
 import Test exposing (..)
 import TypeScript.DeclarationFile as DeclarationFile
-import TypeScript.Interop exposing (toProgramDeclaration)
+import TypeScript.ProgramDeclaration as ProgramDeclaration
 
 
 suite : Test
@@ -22,7 +22,7 @@ suite =
                         ModuleCache.fromList [ ( "Counter", counterIn ) ]
                             |> ModuleCache.readModule "Counter"
                             |> Result.andThen (Tuple.first >> ProgramInterface.extract)
-                            |> Result.andThen toProgramDeclaration
+                            |> Result.andThen ProgramDeclaration.assemble
                             |> Result.map (\declaration -> DeclarationFile.write [ declaration ])
                 in
                 Expect.equal expected result
@@ -65,34 +65,38 @@ view model =
     ]
 
 port incrementFromJS : (() -> msg) -> Sub msg
-port alert : String -> Cmd msg"""
+port alert : String -> Cmd msg
+"""
 
 
 counterOut =
     """// WARNING: Do not manually modify this file. It was generated using:
 // https://github.com/mulias/elm-tigershark
-// Type definitions for Elm ports
+// Type definitions for using Elm programs in TypeScript
 
-export namespace Elm {
-  namespace Double {
-    namespace Nested {
-      /** Counter program. `startingNum` sets the initial count. */
-      namespace Counter {
-        export interface App {
-          ports: {
-            incrementFromJS: {
-              send(data: null): void;
+declare module '*.elm' {
+  export namespace Elm {
+    namespace Double {
+      namespace Nested {
+        /** Counter program. `startingNum` sets the initial count. */
+        namespace Counter {
+          export interface App {
+            ports: {
+              incrementFromJS: {
+                send(data: null): void;
+              };
+              alert: {
+                subscribe(callback: (data: string) => void): void;
+              };
             };
-            alert: {
-              subscribe(callback: (data: string) => void): void;
-            };
-          };
+          }
+          export function init(options: {
+            node?: HTMLElement | null;
+            flags: {startingNum: number};
+          }): Elm.Counter.App;
         }
-        export function init(options: {
-          node?: HTMLElement | null;
-          flags: {startingNum: number};
-        }): Elm.Counter.App;
       }
     }
   }
-}"""
+}
+"""

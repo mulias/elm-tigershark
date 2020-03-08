@@ -45,7 +45,8 @@ parsingFailure =
     """
 module BadSadCode exposing (..)
 
-main = type 3"""
+main = type 3
+"""
 
 
 missingModuleDefinition =

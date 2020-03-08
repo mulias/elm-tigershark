@@ -6,6 +6,7 @@ types, or return an appropriate error.
 -}
 
 import Elm.AST exposing (TypeAnnotationAST(..))
+import Elm.ElmDoc exposing (docComment)
 import Elm.ModuleCache as ModuleCache
 import Elm.ProgramInterface as ProgramInterface
 import Error exposing (Error)
@@ -26,7 +27,7 @@ suite =
                             Ok
                                 { moduleParents = []
                                 , moduleName = "Counter"
-                                , docs = Just "{-| Counter program. `startingNum` sets the initial count.\n-}"
+                                , docs = Just (docComment "Counter program. `startingNum` sets the initial count.")
                                 , flags = RecordAST [ ( "startingNum", TypedAST ( [], "Int" ) [] ) ]
                                 , ports =
                                     [ { name = "alert"
