@@ -1,6 +1,6 @@
 import * as fs from "fs";
 
-interface ElmConfig {
+export interface ElmConfig {
   elmVersion: string;
   sourceDirectories: string[];
 }

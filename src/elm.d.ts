@@ -17,7 +17,14 @@ declare module "*.elm" {
       }
       export function init(options: {
         node?: HTMLElement | null;
-        flags: { inputFileSource: string };
+        flags: {
+          inputFilePath: string;
+          projectFiles: Array<{
+            sourceDirectory: string;
+            filePath: string;
+            contents: string;
+          }>;
+        };
       }): Elm.Main.App;
     }
   }

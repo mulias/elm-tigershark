@@ -1,13 +1,13 @@
 port module Main exposing (main)
 
-import Elm.ModuleCache as Module
 import Elm.ProgramInterface as ProgramInterface
+import Elm.Project as Project exposing (FindBy(..), ProjectFile)
 import Error
 import TypeScript.DeclarationFile as DeclarationFile
 import TypeScript.ProgramDeclaration as ProgramDeclaration
 
 
-main : Program { inputFileSource : String } () ()
+main : Program { inputFilePath : String, projectFiles : List { sourceDirectory : String, filePath : String, contents : String } } () ()
 main =
     Platform.worker
         { init = init
@@ -16,10 +16,11 @@ main =
         }
 
 
-init : { inputFileSource : String } -> ( (), Cmd msg )
-init { inputFileSource } =
+init : { inputFilePath : String, projectFiles : List ProjectFile } -> ( (), Cmd msg )
+init { inputFilePath, projectFiles } =
     case
-        Module.parse inputFileSource
+        Project.init projectFiles
+            |> Project.readFileWith (FilePath inputFilePath)
             |> Result.andThen ProgramInterface.extract
             |> Result.andThen ProgramDeclaration.assemble
             |> Result.map List.singleton
