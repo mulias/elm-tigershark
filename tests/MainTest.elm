@@ -1,7 +1,7 @@
 module MainTest exposing (..)
 
-import Elm.ModuleCache as ModuleCache
 import Elm.ProgramInterface as ProgramInterface
+import Elm.Project as Project exposing (FindBy(..))
 import ExampleModules
 import Expect
 import Test exposing (..)
@@ -19,9 +19,14 @@ suite =
                         Ok counterOut
 
                     result =
-                        ModuleCache.fromList [ ( "Counter", counterIn ) ]
-                            |> ModuleCache.readModule "Counter"
-                            |> Result.andThen (Tuple.first >> ProgramInterface.extract)
+                        Project.init
+                            [ { sourceDirectory = "src"
+                              , filePath = "Double/Nested/Counter.elm"
+                              , contents = counterIn
+                              }
+                            ]
+                            |> Project.readFileWith (FilePath "Double/Nested/Counter.elm")
+                            |> Result.andThen ProgramInterface.extract
                             |> Result.andThen ProgramDeclaration.assemble
                             |> Result.map (\declaration -> DeclarationFile.write [ declaration ])
                 in

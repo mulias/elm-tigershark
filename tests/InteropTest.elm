@@ -1,7 +1,7 @@
 module InteropTest exposing (..)
 
-import Elm.ModuleCache as ModuleCache
 import Elm.ProgramInterface as ProgramInterface
+import Elm.Project as Project exposing (FindBy(..))
 import ExampleModules
 import Expect
 import Test exposing (..)
@@ -29,9 +29,14 @@ suite =
                                 }
 
                         result =
-                            ModuleCache.fromList [ ( "Counter", ExampleModules.counter ) ]
-                                |> ModuleCache.readModule "Counter"
-                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
+                            Project.init
+                                [ { sourceDirectory = "src"
+                                  , filePath = "Counter.elm"
+                                  , contents = ExampleModules.counter
+                                  }
+                                ]
+                                |> Project.readFileWith (FilePath "Counter.elm")
+                                |> Result.andThen ProgramInterface.extract
                                 |> Result.andThen ProgramDeclaration.assemble
                     in
                     Expect.equal expected result

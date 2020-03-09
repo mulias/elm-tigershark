@@ -7,8 +7,8 @@ types, or return an appropriate error.
 
 import Elm.AST exposing (TypeAnnotationAST(..))
 import Elm.ElmDoc exposing (docComment)
-import Elm.ModuleCache as ModuleCache
 import Elm.ProgramInterface as ProgramInterface
+import Elm.Project as Project exposing (FindBy(..))
 import Error exposing (Error)
 import ExampleModules
 import Expect
@@ -40,9 +40,14 @@ suite =
                                 }
 
                         result =
-                            ModuleCache.fromList [ ( "Counter", ExampleModules.counter ) ]
-                                |> ModuleCache.readModule "Counter"
-                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
+                            Project.init
+                                [ { sourceDirectory = "src"
+                                  , filePath = "Counter.elm"
+                                  , contents = ExampleModules.counter
+                                  }
+                                ]
+                                |> Project.readFileWith (FilePath "Counter.elm")
+                                |> Result.andThen ProgramInterface.extract
                     in
                     Expect.equal expect result
             , test "fail when the module code is invalid" <|
@@ -52,9 +57,14 @@ suite =
                             Err Error.ParsingFailure
 
                         result =
-                            ModuleCache.fromList [ ( "BadSadCode", ExampleModules.parsingFailure ) ]
-                                |> ModuleCache.readModule "BadSadCode"
-                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
+                            Project.init
+                                [ { sourceDirectory = "src"
+                                  , filePath = "BadSadCode.elm"
+                                  , contents = ExampleModules.parsingFailure
+                                  }
+                                ]
+                                |> Project.readFileWith (FilePath "BadSadCode.elm")
+                                |> Result.andThen ProgramInterface.extract
                     in
                     Expect.equal expect result
             , test "fail when the module definition is missing" <|
@@ -64,9 +74,14 @@ suite =
                             Err Error.MissingModuleDefinition
 
                         result =
-                            ModuleCache.fromList [ ( "Main", ExampleModules.missingModuleDefinition ) ]
-                                |> ModuleCache.readModule "Main"
-                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
+                            Project.init
+                                [ { sourceDirectory = "src"
+                                  , filePath = "Main.elm"
+                                  , contents = ExampleModules.missingModuleDefinition
+                                  }
+                                ]
+                                |> Project.readFileWith (FilePath "Main.elm")
+                                |> Result.andThen ProgramInterface.extract
                     in
                     Expect.equal expect result
             , test "fail when the module does not have a main function" <|
@@ -76,9 +91,14 @@ suite =
                             Err Error.MissingMainFunction
 
                         result =
-                            ModuleCache.fromList [ ( "NoMain", ExampleModules.missingMainFunction ) ]
-                                |> ModuleCache.readModule "NoMain"
-                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
+                            Project.init
+                                [ { sourceDirectory = "src"
+                                  , filePath = "NoMain.elm"
+                                  , contents = ExampleModules.missingMainFunction
+                                  }
+                                ]
+                                |> Project.readFileWith (FilePath "NoMain.elm")
+                                |> Result.andThen ProgramInterface.extract
                     in
                     Expect.equal expect result
             , test "fail when the main function does not have a signature" <|
@@ -88,9 +108,14 @@ suite =
                             Err Error.MissingMainSignature
 
                         result =
-                            ModuleCache.fromList [ ( "NoMainSig", ExampleModules.missingMainSignature ) ]
-                                |> ModuleCache.readModule "NoMainSig"
-                                |> Result.andThen (Tuple.first >> ProgramInterface.extract)
+                            Project.init
+                                [ { sourceDirectory = "src"
+                                  , filePath = "NoMainSig.elm"
+                                  , contents = ExampleModules.missingMainSignature
+                                  }
+                                ]
+                                |> Project.readFileWith (FilePath "NoMainSig.elm")
+                                |> Result.andThen ProgramInterface.extract
                     in
                     Expect.equal expect result
             ]
