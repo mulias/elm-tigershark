@@ -97,7 +97,7 @@ found in the cache, or if the module source fails to parse.
 readModule : ModuleKey -> ModuleCache -> Result Error ( File, ModuleCache )
 readModule moduleKey graph =
     Dict.get moduleKey graph
-        |> Result.fromMaybe Error.ImportedModuleNotFound
+        |> Result.fromMaybe Error.ModuleNotFound
         |> Result.andThen
             (\thunk ->
                 case thunk.file of

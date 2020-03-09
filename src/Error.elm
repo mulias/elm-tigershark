@@ -15,7 +15,7 @@ type Error
     | MissingMainFunction
     | MissingMainSignature
     | MainNotAProgram
-    | ImportedModuleNotFound
+    | ModuleNotFound
     | UninteroperableType
     | AliasTypesNotSupported
     | InvalidPortSignature
@@ -42,8 +42,8 @@ toString error =
         MainNotAProgram ->
             "MainNotAProgram"
 
-        ImportedModuleNotFound ->
-            "ImportedModuleNotFound"
+        ModuleNotFound ->
+            "ModuleNotFound"
 
         UninteroperableType ->
             "UninteroperableType"
