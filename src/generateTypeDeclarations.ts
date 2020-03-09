@@ -19,4 +19,5 @@ export const generateTypeDeclarations = (
   const program = Elm.Main.init({ flags });
 
   program.ports.writeFile.subscribe(callback);
+  program.ports.reportError.subscribe(console.warn);
 };

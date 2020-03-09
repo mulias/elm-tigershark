@@ -63,6 +63,9 @@ fromAST typeAST =
         TypedAST ( [], "Maybe" ) [ typeArg ] ->
             Result.map MaybeType (fromAST typeArg)
 
+        TypedAST ( [], "List" ) [ typeArg ] ->
+            Result.map ArrayType (fromAST typeArg)
+
         TypedAST ( [], "Array" ) [ typeArg ] ->
             Result.map ArrayType (fromAST typeArg)
 
@@ -71,7 +74,7 @@ fromAST typeAST =
             Ok JsonType
 
         TypedAST ( moduleName, typeStr ) typeArgs ->
-            Err Error.AliasTypesNotSupported
+            Err (Error.AliasTypesNotSupported typeStr)
 
         UnitAST ->
             Ok UnitType

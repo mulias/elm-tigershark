@@ -17,7 +17,7 @@ type Error
     | MainNotAProgram
     | ModuleNotFound
     | UninteroperableType
-    | AliasTypesNotSupported
+    | AliasTypesNotSupported String
     | InvalidPortSignature
 
 
@@ -48,8 +48,8 @@ toString error =
         UninteroperableType ->
             "UninteroperableType"
 
-        AliasTypesNotSupported ->
-            "AliasTypesNotSupported"
+        AliasTypesNotSupported string ->
+            "AliasTypesNotSupported " ++ string
 
         InvalidPortSignature ->
             "InvalidPortSignature"
