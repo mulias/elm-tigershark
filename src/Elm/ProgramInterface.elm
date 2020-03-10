@@ -121,7 +121,7 @@ getPorts file =
             file.moduleDefinition |> Node.value |> Module.isPortModule
     in
     if isPortModule then
-        Util.List.filterMap getPortFromNode file.declarations
+        List.filterMap getPortFromNode file.declarations
 
     else
         []
