@@ -18,10 +18,14 @@ main =
 
 init : { inputFilePath : String, projectFiles : List ProjectFile } -> ( (), Cmd msg )
 init { inputFilePath, projectFiles } =
+    let
+        project =
+            Project.init projectFiles
+    in
     case
-        Project.init projectFiles
-            |> Project.readFileWith (FilePath inputFilePath)
+        Project.readFileWith (FilePath inputFilePath) project
             |> Result.andThen ProgramInterface.extract
+            |> Result.map (ProgramInterface.addImportedPorts project)
             |> Result.andThen ProgramDeclaration.assemble
             |> Result.map List.singleton
             |> Result.map DeclarationFile.write

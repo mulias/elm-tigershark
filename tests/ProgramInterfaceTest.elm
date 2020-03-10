@@ -17,6 +17,18 @@ import String.Interpolate exposing (interpolate)
 import Test exposing (..)
 
 
+{-| The ProjectInterface record keeps a reference to the project module's AST
+for convenience, but there isn't value in testing that part of the output.
+-}
+dropFileFromProgramInterface p =
+    { moduleParents = p.moduleParents
+    , moduleName = p.moduleName
+    , docs = p.docs
+    , flags = p.flags
+    , ports = p.ports
+    }
+
+
 suite : Test
 suite =
     describe "The Elm.Reader module"
@@ -50,6 +62,7 @@ suite =
                                 ]
                                 |> Project.readFileWith (FilePath "Counter.elm")
                                 |> Result.andThen ProgramInterface.extract
+                                |> Result.map dropFileFromProgramInterface
                     in
                     Expect.equal expect result
             , test "fail when the module code is invalid" <|
