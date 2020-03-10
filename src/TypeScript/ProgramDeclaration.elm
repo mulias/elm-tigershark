@@ -2,6 +2,7 @@ module TypeScript.ProgramDeclaration exposing (ProgramDeclaration, assemble)
 
 import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..))
 import Elm.Interop exposing (Interop(..), fromAST)
+import Elm.PortModule as PortModule
 import Elm.ProgramInterface exposing (ProgramInterface)
 import Error exposing (Error)
 import Result.Extra
@@ -43,7 +44,11 @@ assemble p =
             }
         )
         (flags p.flags)
-        (p.ports |> List.map portFunction |> Result.Extra.combine)
+        (p.ports
+            |> PortModule.withDefault []
+            |> List.map portFunction
+            |> Result.Extra.combine
+        )
 
 
 {-| Returns a TypeScript `TypeString` for the flags passed to Elm. The value

@@ -7,6 +7,7 @@ types, or return an appropriate error.
 
 import Elm.AST exposing (TypeAnnotationAST(..))
 import Elm.ElmDoc exposing (docComment)
+import Elm.PortModule exposing (PortModule(..))
 import Elm.ProgramInterface as ProgramInterface
 import Elm.Project as Project exposing (FindBy(..))
 import Error exposing (Error)
@@ -30,13 +31,14 @@ suite =
                                 , docs = Just (docComment "Counter program. `startingNum` sets the initial count.")
                                 , flags = RecordAST [ ( "startingNum", TypedAST ( [], "Int" ) [] ) ]
                                 , ports =
-                                    [ { name = "alert"
-                                      , typeAnnotation =
-                                            FunctionTypeAnnotationAST
-                                                (TypedAST ( [], "String" ) [])
-                                                (TypedAST ( [], "Cmd" ) [ GenericTypeAST "msg" ])
-                                      }
-                                    ]
+                                    ModuleWithPorts
+                                        [ { name = "alert"
+                                          , typeAnnotation =
+                                                FunctionTypeAnnotationAST
+                                                    (TypedAST ( [], "String" ) [])
+                                                    (TypedAST ( [], "Cmd" ) [ GenericTypeAST "msg" ])
+                                          }
+                                        ]
                                 }
 
                         result =

@@ -8,6 +8,7 @@ file for the program.
 import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..), toSignatureAST)
 import Elm.ElmDoc as ElmDoc exposing (ElmDoc)
 import Elm.Parser as Parser
+import Elm.PortModule as PortModule exposing (PortModule(..))
 import Elm.Processing as Processing
 import Elm.RawFile as RawFile
 import Elm.Syntax.Declaration exposing (Declaration(..))
@@ -27,7 +28,7 @@ type alias ProgramInterface =
     , moduleName : String
     , docs : Maybe ElmDoc
     , flags : TypeAnnotationAST
-    , ports : List SignatureAST
+    , ports : PortModule
     }
 
 
@@ -37,19 +38,18 @@ extract file =
         mainFunction =
             getMainFunction file
     in
-    Result.map4
-        (\( moduleParents, moduleName ) docs flags ports ->
+    Result.map3
+        (\( moduleParents, moduleName ) docs flags ->
             { moduleParents = moduleParents
             , moduleName = moduleName
             , docs = docs
             , flags = flags
-            , ports = ports
+            , ports = getPorts file
             }
         )
         (getNestedModuleName file)
         (Result.map getDocumentation mainFunction)
         (Result.andThen getFlags mainFunction)
-        (Ok (getPorts file))
 
 
 getNestedModuleName : File -> Result Error ( List String, String )
@@ -114,17 +114,17 @@ getFlags { signature } =
             )
 
 
-getPorts : File -> List SignatureAST
+getPorts : File -> PortModule
 getPorts file =
     let
         isPortModule =
             file.moduleDefinition |> Node.value |> Module.isPortModule
     in
     if isPortModule then
-        List.filterMap getPortFromNode file.declarations
+        ModuleWithPorts (List.filterMap getPortFromNode file.declarations)
 
     else
-        []
+        NotPortModule
 
 
 getPortFromNode : Node Declaration -> Maybe SignatureAST
