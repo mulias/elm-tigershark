@@ -35,6 +35,20 @@ type alias ProgramInterface =
     }
 
 
+{-| Given a `File`, whihc is the AST returned by `elm-syntax` representing a
+full Elm module, pull out all the information relevant to the main program
+function in the module. Fails if:
+
+  - The module does not have a top declaration line with the module's name
+  - The module does not contain a `main` function
+  - The `main` function does not have a type annotation
+  - The type annotation for `main` is something other than a `Program` type
+
+This function assumes that the module file provided is for the main program,
+and only extracts the information provided in that module. Additional
+processing may be necessary to add information from imported modules.
+
+-}
 extract : File -> Result Error ProgramInterface
 extract file =
     let
@@ -93,6 +107,11 @@ addImportedPorts project programInterface =
             programInterface
 
 
+{-| Elm modules are described as a path with period separators, for example
+`module One.Two.Three exposing ...` declares the module `Three` with parents
+`One` and `Two`. Returns the list of parents and current module name, for
+example `(["One", "Two"], "Three")`
+-}
 getNestedModuleName : File -> Result Error ( List String, String )
 getNestedModuleName { moduleDefinition } =
     case
@@ -111,6 +130,9 @@ getNestedModuleName { moduleDefinition } =
             Ok ( List.reverse parents, name )
 
 
+{-| Try to fund a function in the module with the name "main". The returned
+`Function` AST may or may not have a type signature.
+-}
 getMainFunction : File -> Result Error Function
 getMainFunction { declarations } =
     declarations
@@ -132,6 +154,8 @@ getMainFromNode declarationNode =
             Nothing
 
 
+{-| Returns the documentation for the given function, if there is any.
+-}
 getDocumentation : Function -> Maybe ElmDoc
 getDocumentation { documentation } =
     documentation
@@ -139,6 +163,9 @@ getDocumentation { documentation } =
         |> Maybe.map ElmDoc.fromAST
 
 
+{-| Get the type AST for the flags of a `Program` type. Fails if the provided
+function (assumed to be `main`) is not a `Program`.
+-}
 getFlags : Function -> Result Error TypeAnnotationAST
 getFlags { signature } =
     signature
@@ -155,6 +182,11 @@ getFlags { signature } =
             )
 
 
+{-| Collect all the port function declarations that are in the given module,
+regardless of if the ports are exposed by the module or not. Returns a type
+which specifies of the module is not declared as a `port module`, and therefore
+can't have ports, or is a port module and has a (passably empty) list of ports.
+-}
 getPortsInModule : File -> PortModule
 getPortsInModule file =
     let
@@ -168,6 +200,10 @@ getPortsInModule file =
         NotPortModule
 
 
+{-| Collects all of the port function declarations that are in the given
+module, and also exposed by the module. This is useful for when a main program
+module imports ports from other port modules.
+-}
 getPortsExposedByModule : File -> PortModule
 getPortsExposedByModule file =
     let
@@ -198,6 +234,11 @@ getPortFromNode declarationNode =
             Nothing
 
 
+{-| Given the Project, which contains all local Elm files, retrieve and parse
+the file which is specified by the import AST. Fails if the file can't be found
+in the project, which means either the code is not correctly compiling, or the
+import is for an external library.
+-}
 readImportedModule : Project -> Node Import -> Result Error File
 readImportedModule project importNode =
     let
