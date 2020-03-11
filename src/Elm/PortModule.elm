@@ -1,14 +1,21 @@
-module Elm.PortModule exposing (PortModule(..), map, toMaybe, withDefault)
+module Elm.PortModule exposing (Port, PortModule(..), map, toMaybe, withDefault)
 
-import Elm.AST exposing (SignatureAST)
+import Elm.AST exposing (TypeAnnotationAST)
+
+
+type alias Port =
+    { name : String
+    , typeAnnotation : TypeAnnotationAST
+    , declaredInModule : List String
+    }
 
 
 type PortModule
     = NotPortModule
-    | ModuleWithPorts (List SignatureAST)
+    | ModuleWithPorts (List Port)
 
 
-map : (List SignatureAST -> List SignatureAST) -> PortModule -> PortModule
+map : (List Port -> List Port) -> PortModule -> PortModule
 map mapFn portModule =
     case portModule of
         ModuleWithPorts ports ->
@@ -18,7 +25,7 @@ map mapFn portModule =
             NotPortModule
 
 
-toMaybe : PortModule -> Maybe (List SignatureAST)
+toMaybe : PortModule -> Maybe (List Port)
 toMaybe portsModule =
     case portsModule of
         ModuleWithPorts ports ->
@@ -28,6 +35,6 @@ toMaybe portsModule =
             Nothing
 
 
-withDefault : List SignatureAST -> PortModule -> List SignatureAST
+withDefault : List Port -> PortModule -> List Port
 withDefault default portsModule =
     portsModule |> toMaybe |> Maybe.withDefault default

@@ -190,11 +190,26 @@ can't have ports, or is a port module and has a (passably empty) list of ports.
 getPortsInModule : File -> PortModule
 getPortsInModule file =
     let
+        moduleDef =
+            Node.value file.moduleDefinition
+
         isPortModule =
-            file.moduleDefinition |> Node.value |> Module.isPortModule
+            Module.isPortModule moduleDef
+
+        moduleName =
+            Module.moduleName moduleDef
     in
     if isPortModule then
-        ModuleWithPorts (List.filterMap getPortFromNode file.declarations)
+        file.declarations
+            |> List.filterMap getPortDeclarationFromNode
+            |> List.map
+                (\{ name, typeAnnotation } ->
+                    { name = name
+                    , typeAnnotation = typeAnnotation
+                    , declaredInModule = moduleName
+                    }
+                )
+            |> ModuleWithPorts
 
     else
         NotPortModule
@@ -224,8 +239,8 @@ getPortsExposedByModule file =
     PortModule.map (List.filter isExposedPort) modulePorts
 
 
-getPortFromNode : Node Declaration -> Maybe SignatureAST
-getPortFromNode declarationNode =
+getPortDeclarationFromNode : Node Declaration -> Maybe SignatureAST
+getPortDeclarationFromNode declarationNode =
     case Node.value declarationNode of
         PortDeclaration signature ->
             Just (toSignatureAST signature)
