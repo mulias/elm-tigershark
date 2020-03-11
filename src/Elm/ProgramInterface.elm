@@ -5,7 +5,7 @@ type, and collect the parts of the AST relevant to the TypeScript declaration
 file for the program.
 -}
 
-import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..), toSignatureAST)
+import Elm.AST exposing (ExposingAST(..), SignatureAST, TypeAnnotationAST(..), toExposingAST, toSignatureAST)
 import Elm.ElmDoc as ElmDoc exposing (ElmDoc)
 import Elm.Parser as Parser
 import Elm.PortModule as PortModule exposing (PortModule(..))
@@ -48,7 +48,7 @@ extract file =
             , moduleName = moduleName
             , docs = docs
             , flags = flags
-            , ports = getPorts file
+            , ports = getPortsInModule file
             }
         )
         (getNestedModuleName file)
@@ -57,7 +57,8 @@ extract file =
 
 
 {-| Collect all modules imported by the program's module, and if any of those
-modules are also port modules, add those ports to the program interface.
+imported modules are also port modules, add the ports they expose to the
+program interface.
 
   - In the cases where we fail to find an imported module in the project,
     assume that it's an external library import and ignore that module. Elm
@@ -66,10 +67,11 @@ modules are also port modules, add those ports to the program interface.
   - Elm does not allow re-exporting imports, so only direct imports need to be
     checked, no recursive searching necessary.
 
-  - Add all ports found in imported port modules. Since we don't examine
-    program code, only type signatures, we can't tell when a port is being used,
-    what ports are being used, or if the port is called with prefixed
-    `MyModule.myPort`, vs an imported function `myPort`.
+  - Add all exposed port declarations found in imported port modules. Since we
+    don't examine program code, only type signatures, we can't tell when a port
+    is being used, what ports are being used, or if the port is called prefixed
+    like `MyModule.myPort`, or unprefixed like `myPort`. The safest option is to
+    assume everything is used.
 
 -}
 addImportedPorts : Project -> ProgramInterface -> ProgramInterface
@@ -78,11 +80,13 @@ addImportedPorts project programInterface =
         ModuleWithPorts ports ->
             List.map (readImportedModule project) programInterface.file.imports
                 |> List.filterMap Result.toMaybe
-                |> List.map getPorts
-                |> List.filterMap PortsModule.toMaybe
+                |> List.map getPortsExposedByModule
+                |> List.filterMap PortModule.toMaybe
                 |> List.concat
                 |> (\importedPorts ->
-                        { programInterface | ports = ModuleWithPorts (List.concat [ ports, importedPorts ]) }
+                        { programInterface
+                            | ports = ModuleWithPorts (List.concat [ ports, importedPorts ])
+                        }
                    )
 
         NotPortModule ->
@@ -151,8 +155,8 @@ getFlags { signature } =
             )
 
 
-getPorts : File -> PortModule
-getPorts file =
+getPortsInModule : File -> PortModule
+getPortsInModule file =
     let
         isPortModule =
             file.moduleDefinition |> Node.value |> Module.isPortModule
@@ -162,6 +166,26 @@ getPorts file =
 
     else
         NotPortModule
+
+
+getPortsExposedByModule : File -> PortModule
+getPortsExposedByModule file =
+    let
+        modulePorts =
+            getPortsInModule file
+
+        moduleExposingList =
+            file.moduleDefinition |> Node.value |> Module.exposingList |> toExposingAST
+
+        isExposedPort { name } =
+            case moduleExposingList of
+                All ->
+                    True
+
+                Explicit list ->
+                    List.member name list
+    in
+    PortModule.map (List.filter isExposedPort) modulePorts
 
 
 getPortFromNode : Node Declaration -> Maybe SignatureAST

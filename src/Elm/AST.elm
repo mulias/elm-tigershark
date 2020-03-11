@@ -6,6 +6,7 @@ file positions. This is useful for cases such as error reporting or
 re-constructing files, but for generating TS types we don't need it.
 -}
 
+import Elm.Syntax.Exposing as Exposing exposing (Exposing, TopLevelExpose)
 import Elm.Syntax.ModuleName exposing (ModuleName)
 import Elm.Syntax.Node as Node exposing (Node(..))
 import Elm.Syntax.Signature exposing (Signature)
@@ -32,6 +33,11 @@ type alias RecordFieldAST =
 
 type alias SignatureAST =
     { name : String, typeAnnotation : TypeAnnotationAST }
+
+
+type ExposingAST
+    = All
+    | Explicit (List String)
 
 
 toTypeAnnotationAST : TypeAnnotation -> TypeAnnotationAST
@@ -69,3 +75,31 @@ toSignatureAST { name, typeAnnotation } =
     { name = Node.value name
     , typeAnnotation = toTypeAnnotationAST (Node.value typeAnnotation)
     }
+
+
+toExposingAST : Exposing -> ExposingAST
+toExposingAST exp =
+    case exp of
+        Exposing.All _ ->
+            All
+
+        Exposing.Explicit list ->
+            list
+                |> List.map (Node.value >> toTopLevelExposeAST)
+                |> Explicit
+
+
+toTopLevelExposeAST : TopLevelExpose -> String
+toTopLevelExposeAST tle =
+    case tle of
+        Exposing.InfixExpose name ->
+            name
+
+        Exposing.FunctionExpose name ->
+            name
+
+        Exposing.TypeOrAliasExpose name ->
+            name
+
+        Exposing.TypeExpose { name } ->
+            name
