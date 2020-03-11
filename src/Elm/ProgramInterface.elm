@@ -35,7 +35,7 @@ type alias ProgramInterface =
     }
 
 
-{-| Given a `File`, whihc is the AST returned by `elm-syntax` representing a
+{-| Given a `File`, which is the AST returned by `elm-syntax` representing a
 full Elm module, pull out all the information relevant to the main program
 function in the module. Fails if:
 
