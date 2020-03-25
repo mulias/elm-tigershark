@@ -1,5 +1,6 @@
 port module Main exposing (main)
 
+import Elm.Interop as Interop
 import Elm.ProgramInterface as ProgramInterface
 import Elm.Project as Project exposing (FindBy(..), ProjectFile)
 import Error
@@ -26,7 +27,8 @@ init { inputFilePath, projectFiles } =
         Project.readFileWith (FilePath inputFilePath) project
             |> Result.andThen ProgramInterface.extract
             |> Result.map (ProgramInterface.addImportedPorts project)
-            |> Result.andThen ProgramDeclaration.assemble
+            |> Result.andThen (Interop.program project)
+            |> Result.map ProgramDeclaration.assemble
             |> Result.map List.singleton
             |> Result.map DeclarationFile.write
     of

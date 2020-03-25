@@ -1,4 +1,4 @@
-module TypeScript.TypeString exposing (TypeString, TypeStringFor(..), toTypeString)
+module TypeScript.TypeString exposing (InteropDirection(..), TypeString, toTypeString)
 
 import Elm.Interop exposing (Interop(..))
 import Error exposing (Error)
@@ -14,10 +14,9 @@ type alias TypeString =
 {-| Specifies the part of the TypeScript declaration file in which the type
 string will be used. Here "outbound" means from Elm to TypeScript.
 -}
-type TypeStringFor
-    = Flags
-    | InboundPort
-    | OutboundPort
+type InteropDirection
+    = Inbound
+    | Outbound
 
 
 {-| Create a TypeScript `TypeString` that corresponds to the given Interop type.
@@ -27,8 +26,8 @@ a Typescript `any`, since Elm will accept and validate any value. When `target`
 is `OutboundPort`, data is flowing from Elm to TypeScript. In this case we
 translate `JsonType` as `unknown`, for similar reasons.
 -}
-toTypeString : TypeStringFor -> Interop -> TypeString
-toTypeString target interop =
+toTypeString : InteropDirection -> Interop -> TypeString
+toTypeString direction interop =
     case interop of
         BooleanType ->
             "boolean"
@@ -40,16 +39,16 @@ toTypeString target interop =
             "string"
 
         MaybeType interopArg ->
-            toTypeString target interopArg ++ " | null"
+            toTypeString direction interopArg ++ " | null"
 
         ArrayType interopArg ->
-            "Array<" ++ toTypeString target interopArg ++ ">"
+            "Array<" ++ toTypeString direction interopArg ++ ">"
 
         TupleType interopArgs ->
             let
                 body =
                     interopArgs
-                        |> List.map (toTypeString target)
+                        |> List.map (toTypeString direction)
                         |> String.join ", "
             in
             "[" ++ body ++ "]"
@@ -58,17 +57,18 @@ toTypeString target interop =
             let
                 body =
                     pairs
-                        |> List.map (\( key, val ) -> key ++ ": " ++ toTypeString target val)
+                        |> List.map (\( key, val ) -> key ++ ": " ++ toTypeString direction val)
                         |> String.join "; "
             in
             "{" ++ body ++ "}"
 
         JsonType ->
-            if target == OutboundPort then
-                "unknown"
+            case direction of
+                Outbound ->
+                    "unknown"
 
-            else
-                "any"
+                Inbound ->
+                    "any"
 
         UnitType ->
             "null"
