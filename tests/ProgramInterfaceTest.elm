@@ -62,7 +62,7 @@ suite =
                                   }
                                 ]
                                 |> Project.readFileWith (FilePath "Counter.elm")
-                                |> Result.andThen ProgramInterface.extract
+                                |> Result.andThen ProgramInterface.fromFile
                                 |> Result.map dropFileFromProgramInterface
                     in
                     Expect.equal expect result
@@ -80,7 +80,7 @@ suite =
                                   }
                                 ]
                                 |> Project.readFileWith (FilePath "BadSadCode.elm")
-                                |> Result.andThen ProgramInterface.extract
+                                |> Result.andThen ProgramInterface.fromFile
                     in
                     Expect.equal expect result
             , test "fail when the module definition is missing" <|
@@ -97,7 +97,7 @@ suite =
                                   }
                                 ]
                                 |> Project.readFileWith (FilePath "Main.elm")
-                                |> Result.andThen ProgramInterface.extract
+                                |> Result.andThen ProgramInterface.fromFile
                     in
                     Expect.equal expect result
             , test "fail when the module does not have a main function" <|
@@ -114,7 +114,7 @@ suite =
                                   }
                                 ]
                                 |> Project.readFileWith (FilePath "NoMain.elm")
-                                |> Result.andThen ProgramInterface.extract
+                                |> Result.andThen ProgramInterface.fromFile
                     in
                     Expect.equal expect result
             , test "fail when the main function does not have a signature" <|
@@ -131,7 +131,7 @@ suite =
                                   }
                                 ]
                                 |> Project.readFileWith (FilePath "NoMainSig.elm")
-                                |> Result.andThen ProgramInterface.extract
+                                |> Result.andThen ProgramInterface.fromFile
                     in
                     Expect.equal expect result
             ]

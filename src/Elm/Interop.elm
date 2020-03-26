@@ -1,4 +1,4 @@
-module Elm.Interop exposing (Interop(..), PortInterop(..), ProgramInterop, program)
+module Elm.Interop exposing (Interop(..), PortInterop(..), ProgramInterop, fromProgramInterface)
 
 {-| Convert from Elm type annotations to an `Interop` type, which represents
 the values that can be safely transfered through flags and ports. We use a
@@ -60,8 +60,8 @@ type PortInterop
     | OutboundPort { name : String, outType : Interop }
 
 
-program : Project -> ProgramInterface -> Result Error ProgramInterop
-program project programInterface =
+fromProgramInterface : Project -> ProgramInterface -> Result Error ProgramInterop
+fromProgramInterface project programInterface =
     Result.map2
         (\flags ports ->
             { moduleParents = programInterface.moduleParents

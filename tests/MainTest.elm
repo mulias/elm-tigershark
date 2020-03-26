@@ -29,10 +29,10 @@ suite =
 
                     result =
                         Project.readFileWith (FilePath "Double/Nested/Counter.elm") project
-                            |> Result.andThen ProgramInterface.extract
+                            |> Result.andThen ProgramInterface.fromFile
                             |> Result.map (ProgramInterface.addImportedPorts project)
-                            |> Result.andThen (Interop.program project)
-                            |> Result.map ProgramDeclaration.assemble
+                            |> Result.andThen (Interop.fromProgramInterface project)
+                            |> Result.map ProgramDeclaration.fromInterop
                             |> Result.map List.singleton
                             |> Result.map DeclarationFile.write
                 in

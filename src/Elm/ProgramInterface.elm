@@ -1,4 +1,4 @@
-module Elm.ProgramInterface exposing (ProgramInterface, addImportedPorts, extract)
+module Elm.ProgramInterface exposing (ProgramInterface, addImportedPorts, fromFile)
 
 {-| Parse an Elm module, attempt to locate a `main` function with a `Program`
 type, and collect the parts of the AST relevant to the TypeScript declaration
@@ -49,8 +49,8 @@ and only extracts the information provided in that module. Additional
 processing may be necessary to add information from imported modules.
 
 -}
-extract : File -> Result Error ProgramInterface
-extract file =
+fromFile : File -> Result Error ProgramInterface
+fromFile file =
     let
         mainFunction =
             getMainFunction file

@@ -1,4 +1,4 @@
-module TypeScript.ProgramDeclaration exposing (ProgramDeclaration, assemble)
+module TypeScript.ProgramDeclaration exposing (ProgramDeclaration, fromInterop)
 
 import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..))
 import Elm.Interop exposing (Interop(..), PortInterop(..), ProgramInterop)
@@ -29,11 +29,11 @@ type alias ProgramDeclaration =
     }
 
 
-{-| Convert an Elm program interface to the strings needed to write a
-TypeScript declaration file.
+{-| Convert the interoperable representation of an Elm program into the strings
+needed to write a TypeScript declaration file.
 -}
-assemble : ProgramInterop -> ProgramDeclaration
-assemble { moduleParents, moduleName, docs, flags, ports } =
+fromInterop : ProgramInterop -> ProgramDeclaration
+fromInterop { moduleParents, moduleName, docs, flags, ports } =
     { moduleParents = moduleParents
     , moduleName = moduleName
     , docs = Maybe.map (TSDoc.docComment >> TSDoc.toString) docs

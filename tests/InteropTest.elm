@@ -40,8 +40,8 @@ suite =
 
                         result =
                             Project.readFileWith (FilePath "Counter.elm") project
-                                |> Result.andThen ProgramInterface.extract
-                                |> Result.andThen (Interop.program project)
+                                |> Result.andThen ProgramInterface.fromFile
+                                |> Result.andThen (Interop.fromProgramInterface project)
                     in
                     Expect.equal expected result
             ]
