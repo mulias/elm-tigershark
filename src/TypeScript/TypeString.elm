@@ -11,20 +11,21 @@ type alias TypeString =
     String
 
 
-{-| Specifies the part of the TypeScript declaration file in which the type
-string will be used. Here "outbound" means from Elm to TypeScript.
+{-| Specifies if the type will be passed from TypeScript to Elm (Inbound), or
+Elm to TypeScript (Outbound). The TypeString used to represent an Interop type
+may change based off of this direction.
 -}
 type InteropDirection
     = Inbound
     | Outbound
 
 
-{-| Create a TypeScript `TypeString` that corresponds to the given Interop type.
-When the `target` argument is either `Flags` or `InboundPort`, we know that
-data is flowing from TypeScript to Elm. In this case we translate `JsonType` as
-a Typescript `any`, since Elm will accept and validate any value. When `target`
-is `OutboundPort`, data is flowing from Elm to TypeScript. In this case we
-translate `JsonType` as `unknown`, for similar reasons.
+{-| Create a TypeScript `TypeString` that corresponds to the given Interop
+type. When the `direction` argument is `Inbound`, we know that data is flowing
+from TypeScript to Elm. In this case we translate `JsonType` as a Typescript
+`any`, since Elm will accept and validate any value. When `drection` is
+`Outbound`, data is flowing from Elm to TypeScript. In this case we translate
+`JsonType` as `unknown`, for similar reasons.
 -}
 toTypeString : InteropDirection -> Interop -> TypeString
 toTypeString direction interop =
