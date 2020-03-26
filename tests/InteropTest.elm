@@ -1,5 +1,6 @@
 module InteropTest exposing (..)
 
+import Elm.Interop as Interop exposing (Interop(..), PortInterop(..))
 import Elm.ProgramInterface as ProgramInterface
 import Elm.Project as Project exposing (FindBy(..))
 import ExampleModules
@@ -11,33 +12,36 @@ import TypeScript.ProgramDeclaration as ProgramDeclaration
 suite : Test
 suite =
     describe "The Elm.Interop module"
-        [ describe "Elm.Interop.flagsType"
-            [ test "Converts a RecordAST to an Interop type" <|
+        [ describe "Elm.Interop.program"
+            [ test "Converts an Elm ProgramInterface to interoperable types and strings" <|
                 \_ ->
                     let
                         expected =
                             Ok
                                 { moduleParents = []
                                 , moduleName = "Counter"
-                                , docs = Just "/** Counter program. `startingNum` sets the initial count. */"
-                                , flags = Just "{startingNum: number}"
+                                , docs = Just "Counter program. `startingNum` sets the initial count."
+                                , flags = RecordType [ ( "startingNum", NumberType ) ]
                                 , ports =
-                                    [ { name = "alert"
-                                      , body = "subscribe(callback: (data: string) => void): void"
-                                      }
+                                    [ OutboundPort
+                                        { name = "alert"
+                                        , outType = StringType
+                                        }
                                     ]
                                 }
 
-                        result =
+                        project =
                             Project.init
                                 [ { sourceDirectory = "src"
                                   , filePath = "Counter.elm"
                                   , contents = ExampleModules.counter
                                   }
                                 ]
-                                |> Project.readFileWith (FilePath "Counter.elm")
+
+                        result =
+                            Project.readFileWith (FilePath "Counter.elm") project
                                 |> Result.andThen ProgramInterface.extract
-                                |> Result.andThen ProgramDeclaration.assemble
+                                |> Result.andThen (Interop.program project)
                     in
                     Expect.equal expected result
             ]
