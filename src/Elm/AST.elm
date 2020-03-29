@@ -7,9 +7,11 @@ re-constructing files, but for generating TS types we don't need it.
 -}
 
 import Elm.Syntax.Exposing as Exposing exposing (Exposing, TopLevelExpose)
+import Elm.Syntax.Import exposing (Import)
 import Elm.Syntax.ModuleName exposing (ModuleName)
 import Elm.Syntax.Node as Node exposing (Node(..))
 import Elm.Syntax.Signature exposing (Signature)
+import Elm.Syntax.TypeAlias exposing (TypeAlias)
 import Elm.Syntax.TypeAnnotation exposing (RecordDefinition, RecordField, TypeAnnotation(..))
 
 
@@ -38,6 +40,21 @@ type alias SignatureAST =
 type ExposingAST
     = All
     | Explicit (List String)
+
+
+type alias ImportAST =
+    { moduleName : List String
+    , moduleAlias : Maybe (List String)
+    , exposingList : Maybe ExposingAST
+    }
+
+
+type alias TypeAliasAST =
+    { documentation : Maybe String
+    , name : String
+    , generics : List String
+    , typeAnnotation : TypeAnnotationAST
+    }
 
 
 toTypeAnnotationAST : TypeAnnotation -> TypeAnnotationAST
@@ -103,3 +120,20 @@ toTopLevelExposeAST tle =
 
         Exposing.TypeExpose { name } ->
             name
+
+
+toImportAST : Import -> ImportAST
+toImportAST { moduleName, moduleAlias, exposingList } =
+    { moduleName = Node.value moduleName
+    , moduleAlias = Maybe.map Node.value moduleAlias
+    , exposingList = Maybe.map (Node.value >> toExposingAST) exposingList
+    }
+
+
+toTypeAliasAST : TypeAlias -> TypeAliasAST
+toTypeAliasAST { documentation, name, generics, typeAnnotation } =
+    { documentation = Maybe.map Node.value documentation
+    , name = Node.value name
+    , generics = List.map Node.value generics
+    , typeAnnotation = typeAnnotation |> Node.value |> toTypeAnnotationAST
+    }

@@ -47,9 +47,15 @@ import Browser
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
 
+type Msg = Increment | Decrement
+
+type alias Flags = { startingNum : Int }
+
+type alias AlertMessage = String
+
 {-| Counter program. `startingNum` sets the initial count.
 -}
-main : Program { startingNum : Int } Int Msg
+main : Program Flags Int Msg
 main { startingNum } =
     Browser.element
         { init = startingNum
@@ -58,7 +64,6 @@ main { startingNum } =
         , subscriptions = always (incrementFromJS Increment)
         }
 
-type Msg = Increment | Decrement
 
 update msg model =
   case msg of
@@ -76,7 +81,7 @@ view model =
     ]
 
 port incrementFromJS : (() -> msg) -> Sub msg
-port alert : String -> Cmd msg
+port alert : AlertMessage -> Cmd msg
 """
 
 

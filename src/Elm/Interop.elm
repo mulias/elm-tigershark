@@ -12,6 +12,7 @@ import Elm.PortModule as PortModule exposing (Port, PortModule)
 import Elm.ProgramInterface exposing (ProgramInterface)
 import Elm.Project exposing (Project)
 import Elm.Syntax.File exposing (File)
+import Elm.Type as Type
 import Error exposing (Error)
 import Result.Extra
 import Util.Elm.Syntax.File exposing (fileModuleName)
@@ -46,6 +47,9 @@ type Interop
     | UnitType
 
 
+{-| Information about an Elm program, in a format that can be passed to the
+TypeScript declaration file builder.
+-}
 type alias ProgramInterop =
     { moduleParents : List String
     , moduleName : String
@@ -55,11 +59,20 @@ type alias ProgramInterop =
     }
 
 
+{-| For ports, in addition to the Interop type for the data passed through the
+port, we need to know what callback function the port uses in JS (the port's
+name) and if the port is for sending data to Elm (inbound) or from Elm
+(outbound).
+-}
 type PortInterop
     = InboundPort { name : String, inType : Interop }
     | OutboundPort { name : String, outType : Interop }
 
 
+{-| Given an Elm ProgramInterface, parse the types to produce the corresponding
+ProgramInterop. Fails if either the flag types of port types can't be converted
+to Interop equivalents.
+-}
 fromProgramInterface : Project -> ProgramInterface -> Result Error ProgramInterop
 fromProgramInterface project programInterface =
     Result.map2
@@ -76,8 +89,8 @@ fromProgramInterface project programInterface =
 
 
 programFlags : Project -> ProgramInterface -> Result Error Interop
-programFlags project { flags } =
-    case resolveInteroperable flags of
+programFlags project { moduleParents, moduleName, flags } =
+    case fromAST project (List.concat [ moduleParents, [ moduleName ] ]) flags of
         Ok interop ->
             Ok interop
 
@@ -86,23 +99,23 @@ programFlags project { flags } =
 
 
 programPorts : Project -> ProgramInterface -> Result Error (List PortInterop)
-programPorts project { ports } =
+programPorts project { moduleParents, moduleName, ports } =
     ports
         |> PortModule.withDefault []
-        |> List.map (programPort project)
+        |> List.map (programPort project (List.concat [ moduleParents, [ moduleName ] ]))
         |> Result.Extra.combine
 
 
-programPort : Project -> Port -> Result Error PortInterop
-programPort project { name, typeAnnotation } =
+programPort : Project -> List String -> Port -> Result Error PortInterop
+programPort project moduleContext { name, typeAnnotation } =
     case typeAnnotation of
         FunctionTypeAnnotationAST (FunctionTypeAnnotationAST inTypeAST _) (TypedAST ( [], "Sub" ) [ GenericTypeAST _ ]) ->
-            resolveInteroperable inTypeAST
+            fromAST project moduleContext inTypeAST
                 |> Result.map (\inType -> InboundPort { name = name, inType = inType })
                 |> Result.mapError (always Error.InvalidPortSignature)
 
         FunctionTypeAnnotationAST outTypeAST (TypedAST ( [], "Cmd" ) [ GenericTypeAST _ ]) ->
-            resolveInteroperable outTypeAST
+            fromAST project moduleContext outTypeAST
                 |> Result.map (\outType -> OutboundPort { name = name, outType = outType })
                 |> Result.mapError (always Error.InvalidPortSignature)
 
@@ -110,12 +123,13 @@ programPort project { name, typeAnnotation } =
             Err Error.InvalidPortSignature
 
 
-{-| Given a type annotation, try to return the Interop type that it corresponds
-to. If the annotation does not directly map to an Interop type, then return the
-annotation as an error.
+{-| Given a type annotation, try to produce a corresponding Interop type. If
+the type annotation does not immediately map to an Interop type, look for an
+alias or normalized type which can be substituted in place of the type
+annotation.
 -}
-resolveInteroperable : TypeAnnotationAST -> Result TypeAnnotationAST Interop
-resolveInteroperable typeAST =
+fromAST : Project -> List String -> TypeAnnotationAST -> Result Error Interop
+fromAST project moduleContext typeAST =
     case typeAST of
         TypedAST ( [], "Bool" ) [] ->
             Ok BooleanType
@@ -130,13 +144,13 @@ resolveInteroperable typeAST =
             Ok StringType
 
         TypedAST ( [], "Maybe" ) [ typeArg ] ->
-            Result.map MaybeType (resolveInteroperable typeArg)
+            Result.map MaybeType (fromAST project moduleContext typeArg)
 
         TypedAST ( [], "List" ) [ typeArg ] ->
-            Result.map ArrayType (resolveInteroperable typeArg)
+            Result.map ArrayType (fromAST project moduleContext typeArg)
 
         TypedAST ( [], "Array" ) [ typeArg ] ->
-            Result.map ArrayType (resolveInteroperable typeArg)
+            Result.map ArrayType (fromAST project moduleContext typeArg)
 
         TypedAST ( [ "Json", "Decode" ], "Value" ) [] ->
             Ok JsonType
@@ -144,12 +158,22 @@ resolveInteroperable typeAST =
         TypedAST ( [ "Json", "Encode" ], "Value" ) [] ->
             Ok JsonType
 
+        TypedAST typeReference typeArgs ->
+            Type.dealiasAndNormalize project
+                { moduleContext = moduleContext
+                , typeAnnotation = TypedAST typeReference typeArgs
+                }
+                |> Result.andThen
+                    (\normalizedType ->
+                        fromAST project normalizedType.moduleContext normalizedType.typeAnnotation
+                    )
+
         UnitAST ->
             Ok UnitType
 
         TupledAST tupleTypes ->
             tupleTypes
-                |> List.map resolveInteroperable
+                |> List.map (fromAST project moduleContext)
                 |> Result.Extra.combine
                 |> Result.map TupleType
 
@@ -157,10 +181,11 @@ resolveInteroperable typeAST =
             recordFields
                 |> List.map
                     (\( propertyName, propType ) ->
-                        resolveInteroperable propType |> Result.map (Tuple.pair propertyName)
+                        fromAST project moduleContext propType
+                            |> Result.map (Tuple.pair propertyName)
                     )
                 |> Result.Extra.combine
                 |> Result.map RecordType
 
         ast ->
-            Err ast
+            Err Error.UninteroperableType

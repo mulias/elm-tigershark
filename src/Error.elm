@@ -18,6 +18,8 @@ type Error
     | ModuleNotFound
     | UninteroperableType
     | AliasTypeNotFound
+    | SubstituteTypeNotFound
+    | TypeVariableNotFound
     | InvalidPortSignature
 
 
@@ -50,6 +52,12 @@ toString error =
 
         AliasTypeNotFound ->
             "AliasTypeNotFound"
+
+        SubstituteTypeNotFound ->
+            "SubstituteTypeNotFound"
+
+        TypeVariableNotFound ->
+            "TypeVariableNotFound"
 
         InvalidPortSignature ->
             "InvalidPortSignature"
