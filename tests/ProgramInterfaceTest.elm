@@ -47,6 +47,7 @@ suite =
                                                 FunctionTypeAnnotationAST
                                                     (TypedAST ( [], "String" ) [])
                                                     (TypedAST ( [], "Cmd" ) [ GenericTypeAST "msg" ])
+                                          , declaredInModule = [ "Counter" ]
                                           }
                                         ]
                                 }

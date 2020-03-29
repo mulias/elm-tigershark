@@ -196,6 +196,7 @@ getPortsInModule file =
                 (\{ name, typeAnnotation } ->
                     { name = name
                     , typeAnnotation = typeAnnotation
+                    , declaredInModule = moduleName
                     }
                 )
             |> ModuleWithPorts

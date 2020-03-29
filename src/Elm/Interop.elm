@@ -102,20 +102,20 @@ programPorts : Project -> ProgramInterface -> Result Error (List PortInterop)
 programPorts project { modulePath, ports } =
     ports
         |> PortModule.withDefault []
-        |> List.map (programPort project (ModulePath.toList modulePath))
+        |> List.map (programPort project)
         |> Result.Extra.combine
 
 
-programPort : Project -> List ModuleName -> Port -> Result Error PortInterop
-programPort project moduleContext { name, typeAnnotation } =
+programPort : Project -> Port -> Result Error PortInterop
+programPort project { name, typeAnnotation, declaredInModule } =
     case typeAnnotation of
         FunctionTypeAnnotationAST (FunctionTypeAnnotationAST inTypeAST _) (TypedAST ( [], "Sub" ) [ GenericTypeAST _ ]) ->
-            fromAST project moduleContext inTypeAST
+            fromAST project declaredInModule inTypeAST
                 |> Result.map (\inType -> InboundPort { name = name, inType = inType })
                 |> Result.mapError (always Error.InvalidPortSignature)
 
         FunctionTypeAnnotationAST outTypeAST (TypedAST ( [], "Cmd" ) [ GenericTypeAST _ ]) ->
-            fromAST project moduleContext outTypeAST
+            fromAST project declaredInModule outTypeAST
                 |> Result.map (\outType -> OutboundPort { name = name, outType = outType })
                 |> Result.mapError (always Error.InvalidPortSignature)
 
