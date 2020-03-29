@@ -4,6 +4,7 @@ module Elm.Type exposing (dealiasAndNormalize)
 -}
 
 import Elm.AST exposing (ExposingAST(..), ImportAST, TypeAliasAST, TypeAnnotationAST(..), toExposingAST, toImportAST, toTypeAliasAST)
+import Elm.ModulePath exposing (ModuleName)
 import Elm.Project as Project exposing (FindBy(..), Project)
 import Elm.Syntax.Declaration exposing (Declaration(..))
 import Elm.Syntax.File exposing (File)
@@ -11,26 +12,26 @@ import Elm.Syntax.Node as Node
 import Error exposing (Error)
 import Maybe.Extra
 import Result.Extra
-import Util.Elm.Syntax.File exposing (fileModuleName, moduleExposes)
+import Util.Elm.Syntax.File exposing (fileModuleNameList, moduleExposes)
 import Util.List
 
 
 type alias Type =
-    { moduleContext : List String
+    { moduleContext : List ModuleName
     , typeAnnotation : TypeAnnotationAST
     }
 
 
 type alias TypeToFind =
-    { moduleContext : List String
-    , modulePrefix : List String
+    { moduleContext : List ModuleName
+    , modulePrefix : List ModuleName
     , typeName : String
     , typeArgs : List TypeAnnotationAST
     }
 
 
 type alias FoundType =
-    { moduleContext : List String
+    { moduleContext : List ModuleName
     , generics : List String
     , typeAnnotation : TypeAnnotationAST
     }
@@ -70,7 +71,7 @@ the type.
 -}
 find : Project -> TypeToFind -> Result Error FoundType
 find project typeToFind =
-    case Project.readFileWith (ModuleName typeToFind.moduleContext) project of
+    case Project.readFileWith (Module typeToFind.moduleContext) project of
         Ok file ->
             getLocalAlias file typeToFind
                 |> Result.Extra.orElseLazy (\_ -> getJsonValueType file typeToFind)
@@ -160,7 +161,7 @@ getLocalAlias file { moduleContext, modulePrefix, typeName, typeArgs } =
                             && (name == typeName)
                     then
                         Just
-                            { moduleContext = fileModuleName file
+                            { moduleContext = fileModuleNameList file
                             , generics = generics
                             , typeAnnotation = typeAnnotation
                             }
@@ -214,7 +215,7 @@ getImportedAlias project file typeToFind =
         |> List.filter (importCouldIncludeType typeToFind)
         |> Util.List.findMapResult
             (\{ moduleName } ->
-                Project.readFileWith (ModuleName moduleName) project
+                Project.readFileWith (Module moduleName) project
                     |> Result.andThen
                         (\importFile ->
                             if moduleExposes importFile typeToFind.typeName then

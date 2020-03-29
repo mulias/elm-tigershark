@@ -6,7 +6,6 @@ import Elm.AST exposing (TypeAnnotationAST)
 type alias Port =
     { name : String
     , typeAnnotation : TypeAnnotationAST
-    , declaredInModule : List String
     }
 
 

@@ -6,9 +6,9 @@ file positions. This is useful for cases such as error reporting or
 re-constructing files, but for generating TS types we don't need it.
 -}
 
+import Elm.ModulePath exposing (ModuleName)
 import Elm.Syntax.Exposing as Exposing exposing (Exposing, TopLevelExpose)
 import Elm.Syntax.Import exposing (Import)
-import Elm.Syntax.ModuleName exposing (ModuleName)
 import Elm.Syntax.Node as Node exposing (Node(..))
 import Elm.Syntax.Signature exposing (Signature)
 import Elm.Syntax.TypeAlias exposing (TypeAlias)
@@ -17,7 +17,7 @@ import Elm.Syntax.TypeAnnotation exposing (RecordDefinition, RecordField, TypeAn
 
 type TypeAnnotationAST
     = GenericTypeAST String
-    | TypedAST ( ModuleName, String ) (List TypeAnnotationAST)
+    | TypedAST ( List ModuleName, String ) (List TypeAnnotationAST)
     | UnitAST
     | TupledAST (List TypeAnnotationAST)
     | RecordAST RecordDefinitionAST
@@ -43,8 +43,8 @@ type ExposingAST
 
 
 type alias ImportAST =
-    { moduleName : List String
-    , moduleAlias : Maybe (List String)
+    { moduleName : List ModuleName
+    , moduleAlias : Maybe (List ModuleName)
     , exposingList : Maybe ExposingAST
     }
 

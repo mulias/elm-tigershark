@@ -7,6 +7,7 @@ file for the program.
 
 import Elm.AST exposing (ExposingAST(..), SignatureAST, TypeAnnotationAST(..), toExposingAST, toSignatureAST)
 import Elm.ElmDoc as ElmDoc exposing (ElmDoc)
+import Elm.ModulePath as ModulePath exposing (ModulePath)
 import Elm.Parser as Parser
 import Elm.PortModule as PortModule exposing (PortModule(..))
 import Elm.Processing as Processing
@@ -27,8 +28,7 @@ import Util.List
 
 type alias ProgramInterface =
     { file : File
-    , moduleParents : List String
-    , moduleName : String
+    , modulePath : ModulePath
     , docs : Maybe ElmDoc
     , flags : TypeAnnotationAST
     , ports : PortModule
@@ -56,16 +56,15 @@ fromFile file =
             getMainFunction file
     in
     Result.map3
-        (\( moduleParents, moduleName ) docs flags ->
+        (\modulePath docs flags ->
             { file = file
-            , moduleParents = moduleParents
-            , moduleName = moduleName
+            , modulePath = modulePath
             , docs = docs
             , flags = flags
             , ports = getPortsInModule file
             }
         )
-        (getNestedModuleName file)
+        (getModulePath file)
         (Result.map getDocumentation mainFunction)
         (Result.andThen getFlags mainFunction)
 
@@ -112,22 +111,13 @@ addImportedPorts project programInterface =
 `One` and `Two`. Returns the list of parents and current module name, for
 example `(["One", "Two"], "Three")`
 -}
-getNestedModuleName : File -> Result Error ( List String, String )
-getNestedModuleName { moduleDefinition } =
-    case
-        moduleDefinition
-            |> Node.value
-            |> Module.moduleName
-            |> List.reverse
-    of
-        [] ->
-            Err Error.MissingModuleName
-
-        [ name ] ->
-            Ok ( [], name )
-
-        name :: parents ->
-            Ok ( List.reverse parents, name )
+getModulePath : File -> Result Error ModulePath
+getModulePath { moduleDefinition } =
+    moduleDefinition
+        |> Node.value
+        |> Module.moduleName
+        |> ModulePath.fromList
+        |> Result.fromMaybe Error.MissingModuleName
 
 
 {-| Try to fund a function in the module with the name "main". The returned
@@ -206,7 +196,6 @@ getPortsInModule file =
                 (\{ name, typeAnnotation } ->
                     { name = name
                     , typeAnnotation = typeAnnotation
-                    , declaredInModule = moduleName
                     }
                 )
             |> ModuleWithPorts
@@ -257,7 +246,7 @@ import is for an external library.
 readImportedModule : Project -> Node Import -> Result Error File
 readImportedModule project importNode =
     let
-        moduleName =
+        moduleNames =
             importNode |> Node.value |> .moduleName |> Node.value
     in
-    Project.readFileWith (ModuleName moduleName) project
+    Project.readFileWith (Module moduleNames) project

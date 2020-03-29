@@ -8,6 +8,7 @@ the values that can be safely transfered through flags and ports. We use a
 
 import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..))
 import Elm.ElmDoc as ElmDoc
+import Elm.ModulePath as ModulePath exposing (ModuleName, ModulePath)
 import Elm.PortModule as PortModule exposing (Port, PortModule)
 import Elm.ProgramInterface exposing (ProgramInterface)
 import Elm.Project exposing (Project)
@@ -15,7 +16,6 @@ import Elm.Syntax.File exposing (File)
 import Elm.Type as Type
 import Error exposing (Error)
 import Result.Extra
-import Util.Elm.Syntax.File exposing (fileModuleName)
 
 
 {-| The types that can be passed between Elm and TypeScript via flags and ports.
@@ -77,8 +77,8 @@ fromProgramInterface : Project -> ProgramInterface -> Result Error ProgramIntero
 fromProgramInterface project programInterface =
     Result.map2
         (\flags ports ->
-            { moduleParents = programInterface.moduleParents
-            , moduleName = programInterface.moduleName
+            { moduleParents = ModulePath.parents programInterface.modulePath
+            , moduleName = ModulePath.child programInterface.modulePath
             , docs = Maybe.map ElmDoc.docBody programInterface.docs
             , flags = flags
             , ports = ports
@@ -89,8 +89,8 @@ fromProgramInterface project programInterface =
 
 
 programFlags : Project -> ProgramInterface -> Result Error Interop
-programFlags project { moduleParents, moduleName, flags } =
-    case fromAST project (List.concat [ moduleParents, [ moduleName ] ]) flags of
+programFlags project { modulePath, flags } =
+    case fromAST project (ModulePath.toList modulePath) flags of
         Ok interop ->
             Ok interop
 
@@ -99,14 +99,14 @@ programFlags project { moduleParents, moduleName, flags } =
 
 
 programPorts : Project -> ProgramInterface -> Result Error (List PortInterop)
-programPorts project { moduleParents, moduleName, ports } =
+programPorts project { modulePath, ports } =
     ports
         |> PortModule.withDefault []
-        |> List.map (programPort project (List.concat [ moduleParents, [ moduleName ] ]))
+        |> List.map (programPort project (ModulePath.toList modulePath))
         |> Result.Extra.combine
 
 
-programPort : Project -> List String -> Port -> Result Error PortInterop
+programPort : Project -> List ModuleName -> Port -> Result Error PortInterop
 programPort project moduleContext { name, typeAnnotation } =
     case typeAnnotation of
         FunctionTypeAnnotationAST (FunctionTypeAnnotationAST inTypeAST _) (TypedAST ( [], "Sub" ) [ GenericTypeAST _ ]) ->
@@ -128,7 +128,7 @@ the type annotation does not immediately map to an Interop type, look for an
 alias or normalized type which can be substituted in place of the type
 annotation.
 -}
-fromAST : Project -> List String -> TypeAnnotationAST -> Result Error Interop
+fromAST : Project -> List ModuleName -> TypeAnnotationAST -> Result Error Interop
 fromAST project moduleContext typeAST =
     case typeAST of
         TypedAST ( [], "Bool" ) [] ->

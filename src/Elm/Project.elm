@@ -1,6 +1,7 @@
 module Elm.Project exposing (FindBy(..), Project, ProjectFile, hasFileWith, init, readFileWith)
 
 import Dict exposing (Dict)
+import Elm.ModulePath exposing (ModuleName)
 import Elm.Parser as Parser
 import Elm.Processing as Processing
 import Elm.Syntax.File exposing (File)
@@ -53,7 +54,7 @@ type alias Project =
 -}
 type FindBy
     = FilePath String
-    | ModuleName (List String)
+    | Module (List ModuleName)
 
 
 init : List ProjectFile -> Project
@@ -82,8 +83,8 @@ findByToKey findBy =
         FilePath path ->
             filePathToKey path
 
-        ModuleName name ->
-            String.join "." name
+        Module names ->
+            String.join "." names
 
 
 readFileWith : FindBy -> Project -> Result Error File

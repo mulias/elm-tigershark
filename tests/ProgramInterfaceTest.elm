@@ -21,8 +21,7 @@ import Test exposing (..)
 for convenience, but there isn't value in testing that part of the output.
 -}
 dropFileFromProgramInterface p =
-    { moduleParents = p.moduleParents
-    , moduleName = p.moduleName
+    { modulePath = p.modulePath
     , docs = p.docs
     , flags = p.flags
     , ports = p.ports
@@ -38,8 +37,7 @@ suite =
                     let
                         expect =
                             Ok
-                                { moduleParents = []
-                                , moduleName = "Counter"
+                                { modulePath = ( [], "Counter" )
                                 , docs = Just (docComment "Counter program. `startingNum` sets the initial count.")
                                 , flags = RecordAST [ ( "startingNum", TypedAST ( [], "Int" ) [] ) ]
                                 , ports =
@@ -49,7 +47,6 @@ suite =
                                                 FunctionTypeAnnotationAST
                                                     (TypedAST ( [], "String" ) [])
                                                     (TypedAST ( [], "Cmd" ) [ GenericTypeAST "msg" ])
-                                          , declaredInModule = [ "Counter" ]
                                           }
                                         ]
                                 }

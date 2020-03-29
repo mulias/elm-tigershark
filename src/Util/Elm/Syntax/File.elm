@@ -1,13 +1,14 @@
-module Util.Elm.Syntax.File exposing (fileModuleName, moduleExposes)
+module Util.Elm.Syntax.File exposing (fileModuleNameList, moduleExposes)
 
 import Elm.AST exposing (ExposingAST(..), toExposingAST)
+import Elm.ModulePath exposing (ModuleName)
 import Elm.Syntax.File exposing (File)
 import Elm.Syntax.Module as Module
 import Elm.Syntax.Node as Node
 
 
-fileModuleName : File -> List String
-fileModuleName file =
+fileModuleNameList : File -> List ModuleName
+fileModuleNameList file =
     file.moduleDefinition |> Node.value |> Module.moduleName
 
 
