@@ -8,7 +8,13 @@ import TypeScript.DeclarationFile as DeclarationFile
 import TypeScript.ProgramDeclaration as ProgramDeclaration
 
 
-main : Program { inputFilePath : String, projectFiles : List { sourceDirectory : String, filePath : String, contents : String } } () ()
+type alias Flags =
+    { inputFilePath : String
+    , projectFiles : List ProjectFile
+    }
+
+
+main : Program Flags () ()
 main =
     Platform.worker
         { init = init
