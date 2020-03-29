@@ -13,8 +13,8 @@ programs. Based off of `elm-typescript-interop`.
 - [x] Add types for all ports in file
 - [x] Parse a single module to a declaration file
 - [x] CLI tool
-- [ ] Resolve type aliases
-- [ ] Include imported ports
+- [x] Resolve type aliases
+- [x] Include imported ports
 - [ ] Multi-module parsing
 - [ ] Good error messages, CLI enhancements
 - [ ] Real README documentation
