@@ -30,7 +30,6 @@ Things I'm thinking about now, but should be done later.
 - Flag to use local prettier install to format declaration files, and optionally
   specify the location of the prettier executable. Note: I'm doing this right
   now by running `tigershark foo && prettier foo`.
-- Flag to set if the declaration file matches on `*.elm`, or specific modules.
 - Write custom "isPortsModule" parser so that we don't have to fully parse every
   imported module to find ones that use ports.
 - Fuzz tests?
