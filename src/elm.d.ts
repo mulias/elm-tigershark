@@ -24,6 +24,7 @@ declare module "*.elm" {
             filePath: string;
             contents: string;
           }>;
+          tsModule: string | null;
         };
       }): Elm.Main.App;
     }

@@ -38,7 +38,7 @@ declareModule : String -> List Writer -> Writer
 declareModule name children =
     let
         format contents =
-            interpolate "declare module {0} {\n{1}\n}"
+            interpolate "declare module '{0}' {\n{1}\n}"
                 [ name, indented 2 (join "\n" contents) ]
     in
     writer

@@ -13,6 +13,7 @@ import TypeScript.ProgramDeclaration as ProgramDeclaration exposing (ProgramDecl
 type alias Flags =
     { inputFilePaths : List String
     , projectFiles : List ProjectFile
+    , tsModule : Maybe String
     }
 
 
@@ -26,7 +27,7 @@ main =
 
 
 init : Flags -> ( (), Cmd msg )
-init { inputFilePaths, projectFiles } =
+init { inputFilePaths, projectFiles, tsModule } =
     let
         project =
             Project.init projectFiles
@@ -41,7 +42,7 @@ init { inputFilePaths, projectFiles } =
                         |> List.map (generateProgramDeclaration project)
                         |> Result.Extra.combine
                 )
-            |> Result.map DeclarationFile.write
+            |> Result.map (DeclarationFile.write tsModule)
     of
         Ok outputFile ->
             ( (), writeFile outputFile )
