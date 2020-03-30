@@ -52,7 +52,9 @@ if (inputInvalid || outputInvalid) {
 }
 
 // the input file path is relative to one of the projectDirectories in the elmConfig
-const inputFilePath = pathFromSourceDir(inputArgs[0], elmConfig);
+const inputFilePaths = inputArgs.map(filePath =>
+  pathFromSourceDir(filePath, elmConfig)
+);
 // the output file path can be anywhere
 const outputFileLocation = outputArgs[0].replace(/^--output=/, "");
 
@@ -62,7 +64,7 @@ const projectFiles = elmProjectFiles(elmConfig);
 
 // Call Elm code to turn cli args and project source into declaration files
 
-generateTypeDeclarations({ inputFilePath, projectFiles }, declarations => {
+generateTypeDeclarations({ inputFilePaths, projectFiles }, declarations => {
   const outputFolder = path.dirname(outputFileLocation);
   if (!fs.existsSync(outputFolder)) {
     fs.mkdirSync(outputFolder);

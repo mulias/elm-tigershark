@@ -15,7 +15,7 @@ programs. Based off of `elm-typescript-interop`.
 - [x] CLI tool
 - [x] Resolve type aliases
 - [x] Include imported ports
-- [ ] Multi-module parsing
+- [x] Multi-module parsing
 - [ ] Good error messages, CLI enhancements
 - [ ] Real README documentation
 

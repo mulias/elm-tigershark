@@ -18,7 +18,7 @@ declare module "*.elm" {
       export function init(options: {
         node?: HTMLElement | null;
         flags: {
-          inputFilePath: string;
+          inputFilePaths: Array<string>;
           projectFiles: Array<{
             sourceDirectory: string;
             filePath: string;

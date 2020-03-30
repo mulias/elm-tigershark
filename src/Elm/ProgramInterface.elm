@@ -1,4 +1,4 @@
-module Elm.ProgramInterface exposing (ProgramInterface, addImportedPorts, fromFile)
+module Elm.ProgramInterface exposing (ProgramInterface, addImportedPorts, fromFile, isMainFile)
 
 {-| Parse an Elm module, attempt to locate a `main` function with a `Program`
 type, and collect the parts of the AST relevant to the TypeScript declaration
@@ -23,6 +23,7 @@ import Elm.Syntax.Node as Node exposing (Node(..))
 import Elm.Syntax.TypeAnnotation exposing (TypeAnnotation(..))
 import Error exposing (Error)
 import Parser exposing (deadEndsToString)
+import Result.Extra
 import Util.List
 
 
@@ -33,6 +34,11 @@ type alias ProgramInterface =
     , flags : TypeAnnotationAST
     , ports : PortModule
     }
+
+
+isMainFile : File -> Bool
+isMainFile file =
+    getMainFunction file |> Result.Extra.isOk
 
 
 {-| Given a `File`, which is the AST returned by `elm-syntax` representing a
