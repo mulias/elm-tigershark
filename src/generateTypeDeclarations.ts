@@ -14,10 +14,11 @@ export type Flags<T extends ElmApp<any, any>> = T extends ElmApp<infer F, any>
 
 export const generateTypeDeclarations = (
   flags: Flags<typeof Elm.Main>,
-  callback: (declarations: string) => void
+  successCallback: (declarations: string) => void,
+  errorCallback: (error: string) => void
 ): void => {
   const program = Elm.Main.init({ flags });
 
-  program.ports.writeFile.subscribe(callback);
-  program.ports.reportError.subscribe(console.warn);
+  program.ports.writeFile.subscribe(successCallback);
+  program.ports.reportError.subscribe(errorCallback);
 };

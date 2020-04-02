@@ -70,17 +70,25 @@ const projectFiles = elmProjectFiles(elmConfig);
 
 // Call Elm code to turn cli args and project source into declaration files
 
+const writeFile = (declarations: string) => {
+  const outputFolder = path.dirname(outputFileLocation);
+  if (!fs.existsSync(outputFolder)) {
+    fs.mkdirSync(outputFolder);
+  }
+
+  isWriting = true;
+  fs.writeFileSync(outputFileLocation, declarations);
+  isWriting = false;
+  process.exit(0);
+};
+
+const reportError = (error: string) => {
+  console.warn(error);
+  process.exit(1);
+};
+
 generateTypeDeclarations(
   { inputFilePaths, projectFiles, tsModule },
-  declarations => {
-    const outputFolder = path.dirname(outputFileLocation);
-    if (!fs.existsSync(outputFolder)) {
-      fs.mkdirSync(outputFolder);
-    }
-
-    isWriting = true;
-    fs.writeFileSync(outputFileLocation, declarations);
-    isWriting = false;
-    process.exit(0);
-  }
+  writeFile,
+  reportError
 );
