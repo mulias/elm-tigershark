@@ -59,7 +59,7 @@ suite =
                             }
                     in
                     Expect.equal
-                        (DeclarationFile.write [ programDeclaration ])
+                        (DeclarationFile.write (Just "*.elm") [ programDeclaration ])
                         simpleDeclarationFile
             ]
         ]

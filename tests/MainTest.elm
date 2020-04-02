@@ -34,7 +34,7 @@ suite =
                             |> Result.andThen (Interop.fromProgramInterface project)
                             |> Result.map ProgramDeclaration.fromInterop
                             |> Result.map List.singleton
-                            |> Result.map DeclarationFile.write
+                            |> Result.map (DeclarationFile.write Nothing)
                 in
                 Expect.equal expected result
         ]
@@ -90,27 +90,25 @@ counterOut =
 // https://github.com/mulias/elm-tigershark
 // Type definitions for using Elm programs in TypeScript
 
-declare module '*.elm' {
-  export namespace Elm {
-    namespace Double {
-      namespace Nested {
-        /** Counter program. `startingNum` sets the initial count. */
-        namespace Counter {
-          export interface App {
-            ports: {
-              incrementFromJS: {
-                send(data: null): void;
-              };
-              alert: {
-                subscribe(callback: (data: string) => void): void;
-              };
+export namespace Elm {
+  namespace Double {
+    namespace Nested {
+      /** Counter program. `startingNum` sets the initial count. */
+      namespace Counter {
+        export interface App {
+          ports: {
+            incrementFromJS: {
+              send(data: null): void;
             };
-          }
-          export function init(options: {
-            node?: HTMLElement | null;
-            flags: {startingNum: number};
-          }): Elm.Counter.App;
+            alert: {
+              subscribe(callback: (data: string) => void): void;
+            };
+          };
         }
+        export function init(options: {
+          node?: HTMLElement | null;
+          flags: {startingNum: number};
+        }): Elm.Counter.App;
       }
     }
   }
