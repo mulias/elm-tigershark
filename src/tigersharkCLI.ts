@@ -4,19 +4,22 @@ import { generateTypeDeclarations } from "./generateTypeDeclarations";
 import { tryReadConfig, isSupportedVersion } from "./elmConfig";
 import { elmProjectFiles, pathFromSourceDir } from "./elmFiles";
 
+//
 // Protect process from SIGTERM requests while writing output
+//
 
 var isWriting = false;
 
-process.on("SIGTERM", () => {
+process.on("SIGTERM", code => {
   if (!isWriting) {
-    console.log("Process terminated early, no output written.");
-    process.exit(0);
+    process.exit(143);
   }
 });
 
+//
 // Get the `elm.json` file and retrieve needed info. Fail if running on a
 // project with an unsupported Elm version.
+//
 
 const elmConfig = tryReadConfig();
 
@@ -25,22 +28,30 @@ if (!isSupportedVersion(elmConfig)) {
   process.exit(1);
 }
 
+//
 // Parse cli args
+//
 
 const [_scriptRunner, _script, ...args] = process.argv;
 
 const helpFlag = args.includes("--help");
 const versionFlag = args.includes("--version");
-const inputArgs = args.filter(s => !s.startsWith("--"));
 const outputArgs = args.filter(s => s.startsWith("--output="));
 const tsModuleArgs = args.filter(s => s.startsWith("--tsModule="));
+const inputArgs = args.filter(s => !s.startsWith("--"));
+
+//
+// If no arguments are passed, or the --help flag is used, show the help text
+//
 
 if (helpFlag || !args.length) {
   console.log("help text placeholder");
   process.exit(0);
 }
 
-// If the version flag is passed then ignore everything else and return the app version
+//
+// If the version flag is passed then return the app version
+//
 
 if (versionFlag) {
   const version = require("../package.json")["version"];
@@ -48,7 +59,9 @@ if (versionFlag) {
   process.exit(0);
 }
 
-// Otherwise finish parsing cli args
+//
+// Otherwise finish parsing cli args, exit if the args are invalid
+//
 
 const inputInvalid = inputArgs.length !== 1 || !inputArgs[0].endsWith(".elm");
 const outputInvalid =
@@ -63,6 +76,7 @@ if (inputInvalid || outputInvalid || tsModuleInvalid) {
 const inputFilePaths = inputArgs.map(filePath =>
   pathFromSourceDir(filePath, elmConfig)
 );
+
 // the output file path can be anywhere
 const outputFileLocation = outputArgs[0].replace(/^--output=/, "");
 
@@ -70,12 +84,14 @@ const tsModule = !!tsModuleArgs.length
   ? tsModuleArgs[0].replace(/^--tsModule=/, "")
   : null;
 
-// Read all files in the project
+//
+// Generate a declaration file based on cli args and project source
+//
 
+// Get the source text for each Elm file in the project
 const projectFiles = elmProjectFiles(elmConfig);
 
-// Call Elm code to turn cli args and project source into declaration files
-
+// After Elm generats the declaration file content, write to the outpt file
 const writeFile = (declarations: string) => {
   const outputFolder = path.dirname(outputFileLocation);
   if (!fs.existsSync(outputFolder)) {
@@ -88,11 +104,13 @@ const writeFile = (declarations: string) => {
   process.exit(0);
 };
 
+// Print errors from Elm
 const reportError = (error: string) => {
   console.warn(error);
   process.exit(1);
 };
 
+// Call Elm program to generate the declaration file
 generateTypeDeclarations(
   { inputFilePaths, projectFiles, tsModule },
   writeFile,
