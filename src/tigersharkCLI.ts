@@ -29,10 +29,16 @@ if (!isSupportedVersion(elmConfig)) {
 
 const [_scriptRunner, _script, ...args] = process.argv;
 
+const helpFlag = args.includes("--help");
 const versionFlag = args.includes("--version");
 const inputArgs = args.filter(s => !s.startsWith("--"));
 const outputArgs = args.filter(s => s.startsWith("--output="));
 const tsModuleArgs = args.filter(s => s.startsWith("--tsModule="));
+
+if (helpFlag || !args.length) {
+  console.log("help text placeholder");
+  process.exit(0);
+}
 
 // If the version flag is passed then ignore everything else and return the app version
 
