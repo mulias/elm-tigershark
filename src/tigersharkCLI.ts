@@ -63,12 +63,12 @@ if (versionFlag) {
 // Otherwise finish parsing cli args, exit if the args are invalid
 //
 
-const inputInvalid = inputArgs.length !== 1 || !inputArgs[0].endsWith(".elm");
+const inputsInvalid = inputArgs.some(input => !input.endsWith(".elm"));
 const outputInvalid =
   outputArgs.length !== 1 || !outputArgs[0].endsWith(".d.ts");
 const tsModuleInvalid = tsModuleArgs.length > 1;
 
-if (inputInvalid || outputInvalid || tsModuleInvalid) {
+if (inputsInvalid || outputInvalid || tsModuleInvalid) {
   process.exit(1);
 }
 
