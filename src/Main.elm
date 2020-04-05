@@ -31,24 +31,44 @@ init { inputFilePaths, projectFiles, tsModule } =
     let
         project =
             Project.init projectFiles
+
+        initModel =
+            Ok []
+
+        programDeclarations =
+            List.foldr (addProgramDeclaration project) initModel inputFilePaths
     in
-    case
-        inputFilePaths
-            |> List.map (\filePath -> Project.readFileWith (FilePath filePath) project)
-            |> Result.Extra.combine
-            |> Result.andThen
-                (\files ->
-                    List.filter ProgramInterface.isMainFile files
-                        |> List.map (generateProgramDeclaration project)
-                        |> Result.Extra.combine
-                )
-            |> Result.map (DeclarationFile.write tsModule)
-    of
-        Ok outputFile ->
-            ( (), writeFile outputFile )
+    case programDeclarations of
+        Ok [] ->
+            ( (), reportError (Error.toString Error.MissingMainFunction) )
+
+        Ok declarations ->
+            ( ()
+            , declarations
+                |> DeclarationFile.write tsModule
+                |> writeFile
+            )
 
         Err error ->
             ( (), reportError (Error.toString error) )
+
+
+addProgramDeclaration : Project -> String -> Result Error (List ProgramDeclaration) -> Result Error (List ProgramDeclaration)
+addProgramDeclaration project filePath computation =
+    computation
+        |> Result.andThen
+            (\declarations ->
+                Project.readFileWith (FilePath filePath) project
+                    |> Result.andThen
+                        (\file ->
+                            if ProgramInterface.isMainFile file then
+                                generateProgramDeclaration project file
+                                    |> Result.map (\declaration -> declaration :: declarations)
+
+                            else
+                                Ok declarations
+                        )
+            )
 
 
 generateProgramDeclaration : Project -> File -> Result Error ProgramDeclaration
