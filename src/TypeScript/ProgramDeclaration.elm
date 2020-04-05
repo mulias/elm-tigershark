@@ -24,7 +24,7 @@ type alias ProgramDeclaration =
     { moduleParents : List String
     , moduleName : String
     , docs : Maybe String
-    , flags : Maybe TypeString
+    , flags : TypeString
     , ports : List PortFunction
     }
 
@@ -42,16 +42,11 @@ fromInterop { moduleParents, moduleName, docs, flags, ports } =
     }
 
 
-{-| Returns a TypeScript `TypeString` for the flags passed to Elm. The value
-is `Nothing` when there are no flags to pass.
+{-| Returns a `TypeString` for the flags passed to Elm.
 -}
-flagsString : Interop -> Maybe TypeString
+flagsString : Interop -> TypeString
 flagsString interop =
-    if interop == UnitType then
-        Nothing
-
-    else
-        Just (toTypeString Inbound interop)
+    toTypeString Inbound interop
 
 
 {-| Returns the name of the port and the `TypeString` function declaration for
@@ -68,6 +63,5 @@ portString portInterop =
 
         OutboundPort { name, outType } ->
             { name = name
-            , body =
-                "subscribe(callback: (data: " ++ toTypeString Outbound outType ++ ") => void): void"
+            , body = "subscribe(callback: (data: " ++ toTypeString Outbound outType ++ ") => void): void"
             }

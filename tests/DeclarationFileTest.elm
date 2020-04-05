@@ -51,7 +51,7 @@ suite =
                             { moduleParents = []
                             , moduleName = "Tigershark"
                             , docs = Just "/** The Tigershark Elm program */"
-                            , flags = Just "{ numSharks: number }"
+                            , flags = "{ numSharks: number }"
                             , ports =
                                 [ { name = "ping", body = "subscribe(callback: (data: null) => void): void" }
                                 , { name = "pong", body = "send(data: null): void" }

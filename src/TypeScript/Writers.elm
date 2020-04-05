@@ -152,23 +152,16 @@ portDeclaration { name, body } =
 `moduleName` is needed for the namespaced function return type, and the flags
 are used as the second argument to the function, if the program accepts flags.
 -}
-initFn : { moduleName : String, flags : Maybe String } -> Writer
+initFn : { moduleName : String, flags : String } -> Writer
 initFn { moduleName, flags } =
     let
-        flagsStr =
-            flags
-                |> Maybe.map (\str -> "flags: " ++ str ++ ";")
-                |> Maybe.withDefault ""
-
-        nextLine =
-            flags |> Maybe.map (always "\n") |> Maybe.withDefault ""
-
         template =
             """export function init(options: {
-  node?: HTMLElement | null;{0}{1}
-}): Elm.{2}.App;"""
+  node?: HTMLElement | null;
+  flags: {0};
+}): Elm.{1}.App;"""
 
         content =
-            interpolate template [ nextLine, indented 2 flagsStr, moduleName ]
+            interpolate template [ flags, moduleName ]
     in
     writer { format = always content, children = [] }
