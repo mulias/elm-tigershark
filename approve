@@ -27,7 +27,7 @@ Running success cases
 "
 cd $expectSuccessTests
 for testFolder in *; do
-  echo "Running generator with $testFolder folder"
+  echo "Running generator with '$testFolder' folder"
   cd $testFolder
   BINARY=$binary ./generate-interop
   cd - > /dev/null
