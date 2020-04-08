@@ -13,6 +13,21 @@ declare module "*.elm" {
           reportError: {
             subscribe(callback: (data: string) => void): void;
           };
+          fetchFile: {
+            subscribe(
+              callback: (data: {
+                sourceDirectory: Array<string>;
+                modulePath: [Array<string>, string];
+              }) => void
+            ): void;
+          };
+          fileFetched: {
+            send(data: {
+              sourceDirectory: Array<string>;
+              modulePath: [Array<string>, string];
+              contents: string | null;
+            }): void;
+          };
         };
       }
       export function init(options: {

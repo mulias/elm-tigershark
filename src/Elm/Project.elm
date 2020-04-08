@@ -74,11 +74,16 @@ readFile : ModulePath -> Project -> Result Error File
 readFile modulePath project =
     case Dict.get modulePath project of
         Nothing ->
-            Err Error.FileNotFound
+            Err (Error.FileNotFound { modulePath = modulePath })
 
         Just projectFile ->
             projectFile.contents
-                |> Result.fromMaybe Error.FileNotRead
+                |> Result.fromMaybe
+                    (Error.FileNotRead
+                        { sourceDirectory = projectFile.sourceDirectory
+                        , modulePath = projectFile.modulePath
+                        }
+                    )
                 |> Result.andThen parse
 
 

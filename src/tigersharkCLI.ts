@@ -91,22 +91,36 @@ const tsModule = !!tsModuleArgs.length
   : null;
 
 //
-// Find and read all of the Elm files in the project
+// Find all of the Elm files in the project, but don't read them yet
 //
 
-const projectFiles = allProjectFilePaths(elmConfig)
-  .map(readProjectFile)
-  .filter(
-    (file: ProjectFile | undefined): file is ProjectFile => file !== undefined
-  );
+const projectFiles = allProjectFilePaths(elmConfig).map(projectFilePath => ({
+  ...projectFilePath,
+  contents: null
+}));
 
 //
 // Generate a declaration file based on cli args and project source
 //
 
+// When Elm requests a file, locate and read that file, and then pass
+// the data back to Elm.
+const onFetchFile = (
+  projectFilePath: ProjectFilePath,
+  fileFetched: (projectFile: ProjectFile) => void
+) => {
+  const projectFile = readProjectFile(projectFilePath);
+
+  if (projectFile !== undefined) {
+    fileFetched(projectFile);
+  } else {
+    console.warn("FileNotFound");
+    process.exit(1);
+  }
+};
 
 // After Elm generats the declaration file content, write to the outpt file
-const writeFile = (declarations: string) => {
+const onWriteFile = (declarations: string) => {
   const outputFolder = path.dirname(outputFileLocation);
   if (!fs.existsSync(outputFolder)) {
     fs.mkdirSync(outputFolder);
@@ -119,7 +133,7 @@ const writeFile = (declarations: string) => {
 };
 
 // Print errors from Elm
-const reportError = (error: string) => {
+const onReportError = (error: string) => {
   console.warn(error);
   process.exit(1);
 };
@@ -127,6 +141,5 @@ const reportError = (error: string) => {
 // Call Elm program to generate the declaration file
 generateTypeDeclarations(
   { inputFilePaths, projectFiles, tsModule },
-  writeFile,
-  reportError
+  { onFetchFile, onWriteFile, onReportError }
 );

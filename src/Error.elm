@@ -16,7 +16,12 @@ type Error
     | MissingMainSignature
     | MainNotAProgram
     | FileNotFound
+        { modulePath : ( List String, String )
+        }
     | FileNotRead
+        { sourceDirectory : List String
+        , modulePath : ( List String, String )
+        }
     | EmptyFilePath
     | UninteroperableType
     | AliasTypeNotFound
@@ -46,10 +51,10 @@ toString error =
         MainNotAProgram ->
             "MainNotAProgram"
 
-        FileNotFound ->
+        FileNotFound _ ->
             "FileNotFoundBar"
 
-        FileNotRead ->
+        FileNotRead _ ->
             "FileNotRead"
 
         EmptyFilePath ->

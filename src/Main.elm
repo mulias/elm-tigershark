@@ -18,69 +18,109 @@ type alias Flags =
     }
 
 
-main : Program Flags () ()
+type alias Model =
+    { project : Project
+    , filesToProcess : List ProjectFilePath
+    , declarations : List ProgramDeclaration
+    , declarationFileConfig : DeclarationFile.Config
+    }
+
+
+type Msg
+    = FileFetched ProjectFile
+
+
+main : Program Flags Model Msg
 main =
     Platform.worker
         { init = init
-        , update = \_ _ -> ( (), Cmd.none )
-        , subscriptions = \_ -> Sub.none
+        , update = update
+        , subscriptions = subscriptions
         }
 
 
-init : Flags -> ( (), Cmd msg )
+init : Flags -> ( Model, Cmd Msg )
 init { inputFilePaths, projectFiles, tsModule } =
+    { project = Project.init projectFiles
+    , filesToProcess = inputFilePaths
+    , declarations = []
+    , declarationFileConfig = { declareInModule = tsModule }
+    }
+        |> processInputFiles
+        |> performSideEffects
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update (FileFetched projectFile) model =
+    { model | project = Project.updateFile projectFile model.project }
+        |> processInputFiles
+        |> performSideEffects
+
+
+subscriptions : model -> Sub Msg
+subscriptions =
+    always (fileFetched FileFetched)
+
+
+processInputFiles : Model -> Result ( Error, Model ) Model
+processInputFiles model =
     let
-        project =
-            Project.init projectFiles
-
-        initModel =
-            Ok []
-
-        programDeclarations =
-            List.foldr (addProgramDeclaration project) initModel inputFilePaths
+        { project, filesToProcess, declarations } =
+            model
     in
-    case programDeclarations of
-        Ok [] ->
-            ( (), reportError (Error.toString Error.MissingMainFunction) )
+    case filesToProcess of
+        [] ->
+            Ok model
 
-        Ok declarations ->
-            ( ()
-            , declarations
-                |> DeclarationFile.write { declareInModule = tsModule }
-                |> writeFile
-            )
+        { modulePath } :: restFiles ->
+            case generateProgramDeclaration project modulePath of
+                Ok declaration ->
+                    Ok { model | declarations = declaration :: declarations }
 
-        Err error ->
-            ( (), reportError (Error.toString error) )
+                Err Error.MissingMainFunction ->
+                    Ok { model | filesToProcess = restFiles }
 
-
-addProgramDeclaration : Project -> ProjectFilePath -> Result Error (List ProgramDeclaration) -> Result Error (List ProgramDeclaration)
-addProgramDeclaration project { modulePath } computation =
-    computation
-        |> Result.andThen
-            (\declarations ->
-                Project.readFile modulePath project
-                    |> Result.andThen
-                        (\file ->
-                            if ProgramInterface.isMainFile file then
-                                generateProgramDeclaration project file
-                                    |> Result.map (\declaration -> declaration :: declarations)
-
-                            else
-                                Ok declarations
-                        )
-            )
+                Err error ->
+                    Err ( error, model )
 
 
-generateProgramDeclaration : Project -> File -> Result Error ProgramDeclaration
-generateProgramDeclaration project file =
-    ProgramInterface.fromFile file
+generateProgramDeclaration : Project -> ModulePath -> Result Error ProgramDeclaration
+generateProgramDeclaration project modulePath =
+    Project.readFile modulePath project
+        |> Result.andThen ProgramInterface.fromFile
         |> Result.map (ProgramInterface.addImportedPorts project)
         |> Result.andThen (Interop.fromProgramInterface project)
         |> Result.map ProgramDeclaration.fromInterop
+
+
+performSideEffects : Result ( Error, Model ) Model -> ( Model, Cmd Msg )
+performSideEffects result =
+    case result of
+        Ok model ->
+            let
+                { declarations, declarationFileConfig } =
+                    model
+            in
+            if List.isEmpty declarations then
+                ( model, reportError (Error.toString Error.MissingMainFunction) )
+
+            else
+                ( model, writeFile (DeclarationFile.write declarationFileConfig declarations) )
+
+        Err ( Error.FileNotRead filePath, model ) ->
+            ( model, fetchFile filePath )
+
+        Err ( error, model ) ->
+            ( model, reportError (Error.toString error) )
 
 
 port writeFile : String -> Cmd msg
 
 
 port reportError : String -> Cmd msg
+
+
+port fetchFile : ProjectFilePath -> Cmd msg
+
+
+port fileFetched : (ProjectFile -> msg) -> Sub msg
