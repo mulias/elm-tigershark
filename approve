@@ -54,7 +54,7 @@ echo "\
 Confirming generated code is unchanged
 ======================================
 "
-git diff --exit-code -- './**/*.d.ts' || \
+git diff --exit-code -- './tests-approval/**/*.d.ts' || \
   (echo -e "\nFAILURE: examples code has changed. Commit changes to approve." && exit 1)
 echo -e "Output unchanged"
 
