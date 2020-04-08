@@ -46,7 +46,7 @@ init { inputFilePaths, projectFiles, tsModule } =
         Ok declarations ->
             ( ()
             , declarations
-                |> DeclarationFile.write tsModule
+                |> DeclarationFile.write { declareInModule = tsModule }
                 |> writeFile
             )
 
