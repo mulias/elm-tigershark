@@ -1,6 +1,15 @@
-module Elm.ModulePath exposing (ModuleName, ModulePath, child, fromList, parents, toList)
+module Elm.ModulePath exposing (ModuleName, ModuleNamespace, ModulePath, fromNamespace, name, namespace, toNamespace)
 
-{-| -}
+{-| Handling references to modules and module namespaces.
+-}
+
+
+{-| A series of nested Elm modules, such as ["Foo", "Bar", "Baz"] for
+the module namespace "Foo.Bar.Baz". There may or may not be a module
+such as `src/Foo/Bar/Baz.elm` using this namespace.
+-}
+type alias ModuleNamespace =
+    List String
 
 
 {-| The name of a module, such as "Foo" for the file "src/Foo.elm".
@@ -10,35 +19,44 @@ type alias ModuleName =
 
 
 {-| The full path to reference a module, such as `(["A", "B"], "C")` for the
-file "src/A/B/C.elm".
+module "A.B.C" located in a file such as "src/A/B/C.elm".
 -}
 type alias ModulePath =
-    ( List ModuleName, ModuleName )
+    ( ModuleNamespace, ModuleName )
 
 
-fromList : List ModuleName -> Maybe ModulePath
-fromList moduleNames =
+{-| Try to create a ModulePath from a ModuleNamespace. Returns `Nothing` if the
+namespace is empty.
+-}
+fromNamespace : ModuleNamespace -> Maybe ModulePath
+fromNamespace moduleNames =
     case List.reverse moduleNames of
         [] ->
             Nothing
 
-        [ childName ] ->
-            Just ( [], childName )
+        [ moduleName ] ->
+            Just ( [], moduleName )
 
-        childName :: parentNames ->
-            Just ( List.reverse parentNames, childName )
-
-
-toList : ModulePath -> List ModuleName
-toList ( parentNames, childName ) =
-    List.append parentNames [ childName ]
+        moduleName :: moduleNamespace ->
+            Just ( List.reverse moduleNamespace, moduleName )
 
 
-parents : ModulePath -> List ModuleName
-parents =
+{-| Create a ModuleNamespace form a ModulePath.
+-}
+toNamespace : ModulePath -> ModuleNamespace
+toNamespace ( moduleNamespace, moduleName ) =
+    List.append moduleNamespace [ moduleName ]
+
+
+{-| Get the ModuleNamespace from a ModulePath.
+-}
+namespace : ModulePath -> ModuleNamespace
+namespace =
     Tuple.first
 
 
-child : ModulePath -> ModuleName
-child =
+{-| Get the ModuleName from a ModulePath.
+-}
+name : ModulePath -> ModuleName
+name =
     Tuple.second

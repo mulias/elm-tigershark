@@ -1,7 +1,7 @@
-module Elm.Project exposing (FindBy(..), Project, ProjectFile, hasFileWith, init, readFileWith)
+module Elm.Project exposing (Project, ProjectFile, ProjectFilePath, init, readFile, readFileWithNamespace, updateFile)
 
 import Dict exposing (Dict)
-import Elm.ModulePath exposing (ModuleName)
+import Elm.ModulePath as ModulePath exposing (ModuleNamespace, ModulePath)
 import Elm.Parser as Parser
 import Elm.Processing as Processing
 import Elm.Syntax.File exposing (File)
@@ -9,37 +9,44 @@ import Error exposing (Error)
 import Parser exposing (DeadEnd, Problem(..))
 
 
+{-| Platform agnostic represenation of a directory path, for example
+`["src", "elm"]` for the directory "src/elm"
+-}
+type alias DirPath =
+    List String
+
+
 {-| Data about a file in the Elm project.
 
   - `sourceDirectory` is one of the directories specified in the `elm.json` file.
 
-  - `filePath` is the rest of the path to the file, starting from the
-    `sourceDirectory`.
+  - `modulePath` is the name of the module and namespace that module lives in.
 
-  - `contents` is the full module source read from the file.
+  - `contents` is the full module source read from the file. If we know that
+    the file exists, but have not yet read the file into the Project, then
+    `contents` is `Nothing`.
 
 A `ProjectFile` that reflects a file on disc might look something like
 
-    { sourceDirectory = 'src'
-    , path = 'Nested/Directories/File.elm'
-    , contents = "module Nested.Directories.Files exposing ..."
+    { sourceDirectory = [ "src" ]
+    , path = ( [ "Nested", "Directories" ], "File" )
+    , contents = Just "module Nested.Directories.Files exposing ..."
     }
 
 -}
 type alias ProjectFile =
-    { sourceDirectory : String
-    , filePath : String
-    , contents : String
+    { sourceDirectory : DirPath
+    , modulePath : ModulePath
+    , contents : Maybe String
     }
 
 
-{-| The fully name of a module as a string. For example, for a module stored at
-'src/Nested/Directories/File.elm' the `ModuleKey` is `Nested.Directories.File`.
-In a successfully type-checked Elm project the module name must directly map to
-the file path and vice versa.
+{-| The location of a `ProjectFile`.
 -}
-type alias ModuleKey =
-    String
+type alias ProjectFilePath =
+    { sourceDirectory : DirPath
+    , modulePath : ModulePath
+    }
 
 
 {-| All of the Elm modules that are accessible to `elm make` for a given Elm
@@ -47,57 +54,39 @@ project. Some subset of these files will be read and parsed to create a
 declaration file.
 -}
 type alias Project =
-    Dict ModuleKey ProjectFile
+    Dict ModulePath ProjectFile
 
 
-{-| Specifies the ways a file can be uniquely identified in the Project.
+{-| A `Project` is initialized with the locations of all known files in the
+project, although the contents of these files may not have been read yet.
 -}
-type FindBy
-    = FilePath String
-    | Module (List ModuleName)
-
-
 init : List ProjectFile -> Project
 init files =
-    List.foldl
-        (\projectFile acc ->
-            Dict.insert
-                (filePathToKey projectFile.filePath)
-                projectFile
-                acc
-        )
-        Dict.empty
-        files
+    files |> List.map (\file -> ( file.modulePath, file )) |> Dict.fromList
 
 
-filePathToKey : String -> ModuleKey
-filePathToKey filePath =
-    filePath
-        |> String.replace ".elm" ""
-        |> String.replace "/" "."
+updateFile : ProjectFile -> Project -> Project
+updateFile projectFile project =
+    Dict.insert projectFile.modulePath projectFile project
 
 
-findByToKey : FindBy -> ModuleKey
-findByToKey findBy =
-    case findBy of
-        FilePath path ->
-            filePathToKey path
+readFile : ModulePath -> Project -> Result Error File
+readFile modulePath project =
+    case Dict.get modulePath project of
+        Nothing ->
+            Err Error.FileNotFound
 
-        Module names ->
-            String.join "." names
-
-
-readFileWith : FindBy -> Project -> Result Error File
-readFileWith findBy project =
-    Dict.get (findByToKey findBy) project
-        |> Result.fromMaybe Error.ModuleNotFound
-        |> Result.map .contents
-        |> Result.andThen parse
+        Just projectFile ->
+            projectFile.contents
+                |> Result.fromMaybe Error.FileNotRead
+                |> Result.andThen parse
 
 
-hasFileWith : FindBy -> Project -> Bool
-hasFileWith findBy project =
-    Dict.member (findByToKey findBy) project
+readFileWithNamespace : ModuleNamespace -> Project -> Result Error File
+readFileWithNamespace moduleNamespace project =
+    ModulePath.fromNamespace moduleNamespace
+        |> Result.fromMaybe Error.EmptyFilePath
+        |> Result.andThen (\modulePath -> readFile modulePath project)
 
 
 {-| Parse module code and produce an `Elm.Syntax.File` AST, or fail with a

@@ -18,11 +18,14 @@ declare module "*.elm" {
       export function init(options: {
         node?: HTMLElement | null;
         flags: {
-          inputFilePaths: Array<string>;
+          inputFilePaths: Array<{
+            sourceDirectory: Array<string>;
+            modulePath: [Array<string>, string];
+          }>;
           projectFiles: Array<{
-            sourceDirectory: string;
-            filePath: string;
-            contents: string;
+            sourceDirectory: Array<string>;
+            modulePath: [Array<string>, string];
+            contents: string | null;
           }>;
           tsModule: string | null;
         };

@@ -2,7 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import { generateTypeDeclarations } from "./generateTypeDeclarations";
 import { tryReadConfig, isSupportedVersion } from "./elmConfig";
-import { elmProjectFiles, pathFromSourceDir } from "./elmFiles";
+import {
+  ProjectFile,
+  ProjectFilePath,
+  allProjectFilePaths,
+  projectFilePathFromString,
+  readProjectFile
+} from "./elmFiles";
 
 //
 // Protect process from SIGTERM requests while writing output
@@ -74,10 +80,10 @@ if (inputsInvalid || outputInvalid || tsModuleInvalid) {
 
 // the input file path is relative to one of the projectDirectories in the elmConfig
 const inputFilePaths = inputArgs.map(filePath =>
-  pathFromSourceDir(filePath, elmConfig)
+  projectFilePathFromString(filePath, elmConfig)
 );
 
-// the output file path can be anywhere
+// the output file path can be anywhere, so it's just a string
 const outputFileLocation = outputArgs[0].replace(/^--output=/, "");
 
 const tsModule = !!tsModuleArgs.length
@@ -85,11 +91,19 @@ const tsModule = !!tsModuleArgs.length
   : null;
 
 //
+// Find and read all of the Elm files in the project
+//
+
+const projectFiles = allProjectFilePaths(elmConfig)
+  .map(readProjectFile)
+  .filter(
+    (file: ProjectFile | undefined): file is ProjectFile => file !== undefined
+  );
+
+//
 // Generate a declaration file based on cli args and project source
 //
 
-// Get the source text for each Elm file in the project
-const projectFiles = elmProjectFiles(elmConfig);
 
 // After Elm generats the declaration file content, write to the outpt file
 const writeFile = (declarations: string) => {

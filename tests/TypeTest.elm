@@ -56,10 +56,10 @@ type alias TupleWithGenerics x y = (List x, List y)
 
 project =
     Project.init
-        [ { sourceDirectory = "src", filePath = "Foo.elm", contents = moduleFoo }
-        , { sourceDirectory = "src", filePath = "Bar.elm", contents = moduleBar }
-        , { sourceDirectory = "src", filePath = "Baz.elm", contents = moduleBaz }
-        , { sourceDirectory = "src", filePath = "MiscTypes.elm", contents = moduleMiscTypes }
+        [ { sourceDirectory = [ "src" ], modulePath = ( [], "Foo" ), contents = Just moduleFoo }
+        , { sourceDirectory = [ "src" ], modulePath = ( [], "Bar" ), contents = Just moduleBar }
+        , { sourceDirectory = [ "src" ], modulePath = ( [], "Baz" ), contents = Just moduleBaz }
+        , { sourceDirectory = [ "src" ], modulePath = ( [], "MiscTypes" ), contents = Just moduleMiscTypes }
         ]
 
 

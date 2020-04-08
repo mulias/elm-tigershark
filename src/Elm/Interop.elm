@@ -77,8 +77,8 @@ fromProgramInterface : Project -> ProgramInterface -> Result Error ProgramIntero
 fromProgramInterface project programInterface =
     Result.map2
         (\flags ports ->
-            { moduleParents = ModulePath.parents programInterface.modulePath
-            , moduleName = ModulePath.child programInterface.modulePath
+            { moduleParents = ModulePath.namespace programInterface.modulePath
+            , moduleName = ModulePath.name programInterface.modulePath
             , docs = Maybe.map ElmDoc.docBody programInterface.docs
             , flags = flags
             , ports = ports
@@ -90,7 +90,7 @@ fromProgramInterface project programInterface =
 
 programFlags : Project -> ProgramInterface -> Result Error Interop
 programFlags project { modulePath, flags } =
-    case fromAST project (ModulePath.toList modulePath) flags of
+    case fromAST project (ModulePath.toNamespace modulePath) flags of
         Ok interop ->
             Ok interop
 

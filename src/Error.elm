@@ -15,7 +15,9 @@ type Error
     | MissingMainFunction
     | MissingMainSignature
     | MainNotAProgram
-    | ModuleNotFound
+    | FileNotFound
+    | FileNotRead
+    | EmptyFilePath
     | UninteroperableType
     | AliasTypeNotFound
     | SubstituteTypeNotFound
@@ -44,8 +46,14 @@ toString error =
         MainNotAProgram ->
             "MainNotAProgram"
 
-        ModuleNotFound ->
-            "ModuleNotFound"
+        FileNotFound ->
+            "FileNotFoundBar"
+
+        FileNotRead ->
+            "FileNotRead"
+
+        EmptyFilePath ->
+            "EmptyFilePath"
 
         UninteroperableType ->
             "UninteroperableType"

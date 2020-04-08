@@ -9,7 +9,7 @@ import Elm.AST exposing (TypeAnnotationAST(..))
 import Elm.ElmDoc exposing (docComment)
 import Elm.PortModule exposing (PortModule(..))
 import Elm.ProgramInterface as ProgramInterface
-import Elm.Project as Project exposing (FindBy(..))
+import Elm.Project as Project
 import Error exposing (Error)
 import ExampleModules
 import Expect
@@ -54,12 +54,12 @@ suite =
 
                         result =
                             Project.init
-                                [ { sourceDirectory = "src"
-                                  , filePath = "Counter.elm"
-                                  , contents = ExampleModules.counter
+                                [ { sourceDirectory = [ "src" ]
+                                  , modulePath = ( [], "Counter" )
+                                  , contents = Just ExampleModules.counter
                                   }
                                 ]
-                                |> Project.readFileWith (FilePath "Counter.elm")
+                                |> Project.readFile ( [], "Counter" )
                                 |> Result.andThen ProgramInterface.fromFile
                                 |> Result.map dropFileFromProgramInterface
                     in
@@ -72,12 +72,12 @@ suite =
 
                         result =
                             Project.init
-                                [ { sourceDirectory = "src"
-                                  , filePath = "BadSadCode.elm"
-                                  , contents = ExampleModules.parsingFailure
+                                [ { sourceDirectory = [ "src" ]
+                                  , modulePath = ( [], "BadSadCode" )
+                                  , contents = Just ExampleModules.parsingFailure
                                   }
                                 ]
-                                |> Project.readFileWith (FilePath "BadSadCode.elm")
+                                |> Project.readFile ( [], "BadSadCode" )
                                 |> Result.andThen ProgramInterface.fromFile
                     in
                     Expect.equal expect result
@@ -89,12 +89,12 @@ suite =
 
                         result =
                             Project.init
-                                [ { sourceDirectory = "src"
-                                  , filePath = "Main.elm"
-                                  , contents = ExampleModules.missingModuleDefinition
+                                [ { sourceDirectory = [ "src" ]
+                                  , modulePath = ( [], "Main" )
+                                  , contents = Just ExampleModules.missingModuleDefinition
                                   }
                                 ]
-                                |> Project.readFileWith (FilePath "Main.elm")
+                                |> Project.readFile ( [], "Main" )
                                 |> Result.andThen ProgramInterface.fromFile
                     in
                     Expect.equal expect result
@@ -106,12 +106,12 @@ suite =
 
                         result =
                             Project.init
-                                [ { sourceDirectory = "src"
-                                  , filePath = "NoMain.elm"
-                                  , contents = ExampleModules.missingMainFunction
+                                [ { sourceDirectory = [ "src" ]
+                                  , modulePath = ( [], "NoMain" )
+                                  , contents = Just ExampleModules.missingMainFunction
                                   }
                                 ]
-                                |> Project.readFileWith (FilePath "NoMain.elm")
+                                |> Project.readFile ( [], "NoMain" )
                                 |> Result.andThen ProgramInterface.fromFile
                     in
                     Expect.equal expect result
@@ -123,12 +123,12 @@ suite =
 
                         result =
                             Project.init
-                                [ { sourceDirectory = "src"
-                                  , filePath = "NoMainSig.elm"
-                                  , contents = ExampleModules.missingMainSignature
+                                [ { sourceDirectory = [ "src" ]
+                                  , modulePath = ( [], "NoMainSig" )
+                                  , contents = Just ExampleModules.missingMainSignature
                                   }
                                 ]
-                                |> Project.readFileWith (FilePath "NoMainSig.elm")
+                                |> Project.readFile ( [], "NoMainSig" )
                                 |> Result.andThen ProgramInterface.fromFile
                     in
                     Expect.equal expect result

@@ -11,7 +11,7 @@ import Elm.ModulePath as ModulePath exposing (ModulePath)
 import Elm.Parser as Parser
 import Elm.PortModule as PortModule exposing (PortModule(..))
 import Elm.Processing as Processing
-import Elm.Project as Project exposing (FindBy(..), Project)
+import Elm.Project as Project exposing (Project)
 import Elm.RawFile as RawFile
 import Elm.Syntax.Declaration exposing (Declaration(..))
 import Elm.Syntax.Documentation
@@ -122,7 +122,7 @@ getModulePath { moduleDefinition } =
     moduleDefinition
         |> Node.value
         |> Module.moduleName
-        |> ModulePath.fromList
+        |> ModulePath.fromNamespace
         |> Result.fromMaybe Error.MissingModuleName
 
 
@@ -256,4 +256,4 @@ readImportedModule project importNode =
         moduleNames =
             importNode |> Node.value |> .moduleName |> Node.value
     in
-    Project.readFileWith (Module moduleNames) project
+    Project.readFileWithNamespace moduleNames project

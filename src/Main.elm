@@ -1,8 +1,9 @@
 port module Main exposing (main)
 
 import Elm.Interop as Interop
+import Elm.ModulePath exposing (ModulePath)
 import Elm.ProgramInterface as ProgramInterface
-import Elm.Project as Project exposing (FindBy(..), Project, ProjectFile)
+import Elm.Project as Project exposing (Project, ProjectFile, ProjectFilePath)
 import Elm.Syntax.File exposing (File)
 import Error exposing (Error)
 import Result.Extra
@@ -11,7 +12,7 @@ import TypeScript.ProgramDeclaration as ProgramDeclaration exposing (ProgramDecl
 
 
 type alias Flags =
-    { inputFilePaths : List String
+    { inputFilePaths : List ProjectFilePath
     , projectFiles : List ProjectFile
     , tsModule : Maybe String
     }
@@ -53,12 +54,12 @@ init { inputFilePaths, projectFiles, tsModule } =
             ( (), reportError (Error.toString error) )
 
 
-addProgramDeclaration : Project -> String -> Result Error (List ProgramDeclaration) -> Result Error (List ProgramDeclaration)
-addProgramDeclaration project filePath computation =
+addProgramDeclaration : Project -> ProjectFilePath -> Result Error (List ProgramDeclaration) -> Result Error (List ProgramDeclaration)
+addProgramDeclaration project { modulePath } computation =
     computation
         |> Result.andThen
             (\declarations ->
-                Project.readFileWith (FilePath filePath) project
+                Project.readFile modulePath project
                     |> Result.andThen
                         (\file ->
                             if ProgramInterface.isMainFile file then

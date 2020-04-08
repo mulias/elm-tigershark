@@ -2,7 +2,7 @@ module InteropTest exposing (..)
 
 import Elm.Interop as Interop exposing (Interop(..), PortInterop(..))
 import Elm.ProgramInterface as ProgramInterface
-import Elm.Project as Project exposing (FindBy(..))
+import Elm.Project as Project
 import ExampleModules
 import Expect
 import Test exposing (..)
@@ -31,15 +31,10 @@ suite =
                                 }
 
                         project =
-                            Project.init
-                                [ { sourceDirectory = "src"
-                                  , filePath = "Counter.elm"
-                                  , contents = ExampleModules.counter
-                                  }
-                                ]
+                            Project.init [ { sourceDirectory = [ "src" ], modulePath = ( [], "Counter" ), contents = Just ExampleModules.counter } ]
 
                         result =
-                            Project.readFileWith (FilePath "Counter.elm") project
+                            Project.readFile ( [], "Counter" ) project
                                 |> Result.andThen ProgramInterface.fromFile
                                 |> Result.andThen (Interop.fromProgramInterface project)
                     in

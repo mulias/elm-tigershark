@@ -4,8 +4,8 @@ module Elm.Type exposing (dealiasAndNormalize)
 -}
 
 import Elm.AST exposing (ExposingAST(..), ImportAST, TypeAliasAST, TypeAnnotationAST(..), toExposingAST, toImportAST, toTypeAliasAST)
-import Elm.ModulePath exposing (ModuleName)
-import Elm.Project as Project exposing (FindBy(..), Project)
+import Elm.ModulePath exposing (ModuleNamespace)
+import Elm.Project as Project exposing (Project)
 import Elm.Syntax.Declaration exposing (Declaration(..))
 import Elm.Syntax.File exposing (File)
 import Elm.Syntax.Node as Node
@@ -17,21 +17,21 @@ import Util.List
 
 
 type alias Type =
-    { moduleContext : List ModuleName
+    { moduleContext : ModuleNamespace
     , typeAnnotation : TypeAnnotationAST
     }
 
 
 type alias TypeToFind =
-    { moduleContext : List ModuleName
-    , modulePrefix : List ModuleName
+    { moduleContext : ModuleNamespace
+    , modulePrefix : ModuleNamespace
     , typeName : String
     , typeArgs : List TypeAnnotationAST
     }
 
 
 type alias FoundType =
-    { moduleContext : List ModuleName
+    { moduleContext : ModuleNamespace
     , generics : List String
     , typeAnnotation : TypeAnnotationAST
     }
@@ -71,7 +71,7 @@ the type.
 -}
 find : Project -> TypeToFind -> Result Error FoundType
 find project typeToFind =
-    case Project.readFileWith (Module typeToFind.moduleContext) project of
+    case Project.readFileWithNamespace typeToFind.moduleContext project of
         Ok file ->
             getLocalAlias file typeToFind
                 |> Result.Extra.orElseLazy (\_ -> getJsonValueType file typeToFind)
@@ -215,7 +215,7 @@ getImportedAlias project file typeToFind =
         |> List.filter (importCouldIncludeType typeToFind)
         |> Util.List.findMapResult
             (\{ moduleName } ->
-                Project.readFileWith (Module moduleName) project
+                Project.readFileWithNamespace moduleName project
                     |> Result.andThen
                         (\importFile ->
                             if moduleExposes importFile typeToFind.typeName then

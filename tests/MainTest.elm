@@ -2,7 +2,7 @@ module MainTest exposing (..)
 
 import Elm.Interop as Interop
 import Elm.ProgramInterface as ProgramInterface
-import Elm.Project as Project exposing (FindBy(..))
+import Elm.Project as Project
 import ExampleModules
 import Expect
 import Test exposing (..)
@@ -21,20 +21,20 @@ suite =
 
                     project =
                         Project.init
-                            [ { sourceDirectory = "src"
-                              , filePath = "Double/Nested/Counter.elm"
-                              , contents = counterIn
+                            [ { sourceDirectory = [ "src" ]
+                              , modulePath = ( [ "Double", "Nested" ], "Counter" )
+                              , contents = Just counterIn
                               }
                             ]
 
                     result =
-                        Project.readFileWith (FilePath "Double/Nested/Counter.elm") project
+                        Project.readFile ( [ "Double", "Nested" ], "Counter" ) project
                             |> Result.andThen ProgramInterface.fromFile
                             |> Result.map (ProgramInterface.addImportedPorts project)
                             |> Result.andThen (Interop.fromProgramInterface project)
                             |> Result.map ProgramDeclaration.fromInterop
                             |> Result.map List.singleton
-                            |> Result.map (DeclarationFile.write Nothing)
+                            |> Result.map (DeclarationFile.write { declareInModule = Nothing })
                 in
                 Expect.equal expected result
         ]
