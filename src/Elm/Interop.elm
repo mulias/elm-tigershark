@@ -14,7 +14,7 @@ import Elm.ProgramInterface exposing (ProgramInterface)
 import Elm.Project exposing (Project)
 import Elm.Syntax.File exposing (File)
 import Elm.Type as Type
-import Error exposing (Error(..))
+import Main.Error as Error exposing (Error(..))
 import Result.Extra
 
 

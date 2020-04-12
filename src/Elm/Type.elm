@@ -9,7 +9,7 @@ import Elm.Project as Project exposing (Project)
 import Elm.Syntax.Declaration exposing (Declaration(..))
 import Elm.Syntax.File exposing (File)
 import Elm.Syntax.Node as Node
-import Error exposing (Error(..))
+import Main.Error as Error exposing (Error(..))
 import Maybe.Extra
 import Result.Extra
 import Util.Elm.Syntax.File exposing (fileModuleNameList, moduleExposes)

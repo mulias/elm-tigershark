@@ -10,9 +10,9 @@ import Elm.ElmDoc exposing (docComment)
 import Elm.PortModule exposing (PortModule(..))
 import Elm.ProgramInterface as ProgramInterface
 import Elm.Project as Project
-import Error exposing (Error(..))
 import ExampleModules
 import Expect
+import Main.Error as Error exposing (Error(..))
 import String.Interpolate exposing (interpolate)
 import Test exposing (..)
 

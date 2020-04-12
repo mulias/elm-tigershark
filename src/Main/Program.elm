@@ -5,7 +5,7 @@ import Elm.ModulePath exposing (ModulePath)
 import Elm.ProgramInterface as ProgramInterface
 import Elm.Project as Project exposing (Project, ProjectFile, ProjectFilePath)
 import Elm.Syntax.File exposing (File)
-import Error exposing (Error(..))
+import Main.Error as Error exposing (Error(..))
 import Result.Extra
 import TypeScript.DeclarationFile as DeclarationFile
 import TypeScript.ProgramDeclaration as ProgramDeclaration exposing (ProgramDeclaration)

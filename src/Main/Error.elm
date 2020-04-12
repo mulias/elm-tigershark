@@ -1,4 +1,4 @@
-module Error exposing (Error(..), FatalError(..), NonFatalError(..), toString)
+module Main.Error exposing (Error(..), FatalError(..), NonFatalError(..), toString)
 
 {-| Catalog of possible failure cases in generating a type declaration file.
 The `Error` type accounts for errors in Elm, but some failure cases can happen

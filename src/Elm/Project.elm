@@ -5,7 +5,7 @@ import Elm.ModulePath as ModulePath exposing (ModuleNamespace, ModulePath)
 import Elm.Parser as Parser
 import Elm.Processing as Processing
 import Elm.Syntax.File exposing (File)
-import Error exposing (Error(..))
+import Main.Error as Error exposing (Error(..))
 import Parser exposing (DeadEnd, Problem(..))
 
 

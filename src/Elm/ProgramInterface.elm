@@ -21,7 +21,7 @@ import Elm.Syntax.Import exposing (Import)
 import Elm.Syntax.Module as Module
 import Elm.Syntax.Node as Node exposing (Node(..))
 import Elm.Syntax.TypeAnnotation exposing (TypeAnnotation(..))
-import Error exposing (Error(..))
+import Main.Error as Error exposing (Error(..))
 import Parser exposing (deadEndsToString)
 import Result.Extra
 import Util.List

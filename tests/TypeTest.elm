@@ -3,8 +3,8 @@ module TypeTest exposing (..)
 import Elm.AST exposing (TypeAnnotationAST(..))
 import Elm.Project as Project
 import Elm.Type as Type
-import Error exposing (Error(..))
 import Expect
+import Main.Error as Error exposing (Error(..))
 import Test exposing (..)
 
 
