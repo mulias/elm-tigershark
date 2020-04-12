@@ -1,4 +1,4 @@
-module Error exposing (Error(..), toString)
+module Error exposing (Error(..), FatalError(..), NonFatalError(..), toString)
 
 {-| Catalog of possible failure cases in generating a type declaration file.
 The `Error` type accounts for errors in Elm, but some failure cases can happen
@@ -9,18 +9,18 @@ in the node wrapper.
 {-| Fatal processing errors that should be reported to the user.
 -}
 type Error
+    = Fatal FatalError
+    | NonFatal NonFatalError
+
+
+type FatalError
     = ParsingFailure
     | MissingModuleDefinition
     | MissingModuleName
-    | MissingMainFunction
     | MissingMainSignature
     | MainNotAProgram
     | FileNotFound
         { modulePath : ( List String, String )
-        }
-    | FileNotRead
-        { sourceDirectory : List String
-        , modulePath : ( List String, String )
         }
     | EmptyFilePath
     | UninteroperableType
@@ -28,9 +28,18 @@ type Error
     | SubstituteTypeNotFound
     | TypeVariableNotFound
     | InvalidPortSignature
+    | NoDeclarationsToGenerate
 
 
-toString : Error -> String
+type NonFatalError
+    = MissingMainFunction
+    | FileNotRead
+        { sourceDirectory : List String
+        , modulePath : ( List String, String )
+        }
+
+
+toString : FatalError -> String
 toString error =
     case error of
         ParsingFailure ->
@@ -42,9 +51,6 @@ toString error =
         MissingModuleName ->
             "MissingModuleName"
 
-        MissingMainFunction ->
-            "MissingMainFunction"
-
         MissingMainSignature ->
             "MissingMainSignature"
 
@@ -53,9 +59,6 @@ toString error =
 
         FileNotFound _ ->
             "FileNotFoundBar"
-
-        FileNotRead _ ->
-            "FileNotRead"
 
         EmptyFilePath ->
             "EmptyFilePath"
@@ -74,3 +77,6 @@ toString error =
 
         InvalidPortSignature ->
             "InvalidPortSignature"
+
+        NoDeclarationsToGenerate ->
+            "NoDeclarationsToGenerate"

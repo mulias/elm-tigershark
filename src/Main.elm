@@ -5,7 +5,7 @@ import Elm.ModulePath exposing (ModulePath)
 import Elm.ProgramInterface as ProgramInterface
 import Elm.Project as Project exposing (Project, ProjectFile, ProjectFilePath)
 import Elm.Syntax.File exposing (File)
-import Error exposing (Error)
+import Error exposing (Error(..))
 import Result.Extra
 import TypeScript.DeclarationFile as DeclarationFile
 import TypeScript.ProgramDeclaration as ProgramDeclaration exposing (ProgramDeclaration)
@@ -69,7 +69,7 @@ processInputFiles model =
     case filesToProcess of
         [] ->
             if List.isEmpty declarations then
-                ( model, reportError (Error.toString Error.MissingMainFunction) )
+                ( model, reportError (Error.toString Error.NoDeclarationsToGenerate) )
 
             else
                 ( model, writeFile (DeclarationFile.write declarationFileConfig declarations) )
@@ -83,16 +83,16 @@ processInputFiles model =
                             , declarations = declaration :: declarations
                         }
 
-                Err Error.MissingMainFunction ->
+                Err (NonFatal Error.MissingMainFunction) ->
                     processInputFiles
                         { model
                             | filesToProcess = restFiles
                         }
 
-                Err (Error.FileNotRead filePath) ->
+                Err (NonFatal (Error.FileNotRead filePath)) ->
                     ( model, fetchFile filePath )
 
-                Err error ->
+                Err (Fatal error) ->
                     ( model, reportError (Error.toString error) )
 
 

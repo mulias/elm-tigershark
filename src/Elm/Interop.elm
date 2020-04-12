@@ -14,7 +14,7 @@ import Elm.ProgramInterface exposing (ProgramInterface)
 import Elm.Project exposing (Project)
 import Elm.Syntax.File exposing (File)
 import Elm.Type as Type
-import Error exposing (Error)
+import Error exposing (Error(..))
 import Result.Extra
 
 
@@ -95,7 +95,7 @@ programFlags project { modulePath, flags } =
             Ok interop
 
         Err unknownType ->
-            Err Error.UninteroperableType
+            Err (Fatal Error.UninteroperableType)
 
 
 programPorts : Project -> ProgramInterface -> Result Error (List PortInterop)
@@ -112,15 +112,15 @@ programPort project { name, typeAnnotation, declaredInModule } =
         FunctionTypeAnnotationAST (FunctionTypeAnnotationAST inTypeAST _) (TypedAST ( [], "Sub" ) [ GenericTypeAST _ ]) ->
             fromAST project declaredInModule inTypeAST
                 |> Result.map (\inType -> InboundPort { name = name, inType = inType })
-                |> Result.mapError (always Error.InvalidPortSignature)
+                |> Result.mapError (always (Fatal Error.InvalidPortSignature))
 
         FunctionTypeAnnotationAST outTypeAST (TypedAST ( [], "Cmd" ) [ GenericTypeAST _ ]) ->
             fromAST project declaredInModule outTypeAST
                 |> Result.map (\outType -> OutboundPort { name = name, outType = outType })
-                |> Result.mapError (always Error.InvalidPortSignature)
+                |> Result.mapError (always (Fatal Error.InvalidPortSignature))
 
         _ ->
-            Err Error.InvalidPortSignature
+            Err (Fatal Error.InvalidPortSignature)
 
 
 {-| Given a type annotation, try to produce a corresponding Interop type. If
@@ -188,4 +188,4 @@ fromAST project moduleContext typeAST =
                 |> Result.map RecordType
 
         ast ->
-            Err Error.UninteroperableType
+            Err (Fatal Error.UninteroperableType)

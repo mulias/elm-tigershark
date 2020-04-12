@@ -21,7 +21,7 @@ import Elm.Syntax.Import exposing (Import)
 import Elm.Syntax.Module as Module
 import Elm.Syntax.Node as Node exposing (Node(..))
 import Elm.Syntax.TypeAnnotation exposing (TypeAnnotation(..))
-import Error exposing (Error)
+import Error exposing (Error(..))
 import Parser exposing (deadEndsToString)
 import Result.Extra
 import Util.List
@@ -118,7 +118,7 @@ getModulePath { moduleDefinition } =
         |> Node.value
         |> Module.moduleName
         |> ModulePath.fromNamespace
-        |> Result.fromMaybe Error.MissingModuleName
+        |> Result.fromMaybe (Fatal Error.MissingModuleName)
 
 
 {-| Try to fund a function in the module with the name "main". The returned
@@ -128,7 +128,7 @@ getMainFunction : File -> Result Error Function
 getMainFunction { declarations } =
     declarations
         |> Util.List.findMap getMainFromNode
-        |> Result.fromMaybe Error.MissingMainFunction
+        |> Result.fromMaybe (NonFatal Error.MissingMainFunction)
 
 
 getMainFromNode : Node Declaration -> Maybe Function
@@ -160,7 +160,7 @@ function (assumed to be `main`) is not a `Program`.
 getFlags : Function -> Result Error TypeAnnotationAST
 getFlags { signature } =
     signature
-        |> Result.fromMaybe Error.MissingMainSignature
+        |> Result.fromMaybe (Fatal Error.MissingMainSignature)
         |> Result.map (Node.value >> toSignatureAST)
         |> Result.andThen
             (\{ typeAnnotation } ->
@@ -169,7 +169,7 @@ getFlags { signature } =
                         Ok flags
 
                     _ ->
-                        Err Error.MainNotAProgram
+                        Err (Fatal Error.MainNotAProgram)
             )
 
 

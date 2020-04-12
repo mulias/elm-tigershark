@@ -10,7 +10,7 @@ import Elm.ElmDoc exposing (docComment)
 import Elm.PortModule exposing (PortModule(..))
 import Elm.ProgramInterface as ProgramInterface
 import Elm.Project as Project
-import Error exposing (Error)
+import Error exposing (Error(..))
 import ExampleModules
 import Expect
 import String.Interpolate exposing (interpolate)
@@ -68,7 +68,7 @@ suite =
                 \_ ->
                     let
                         expect =
-                            Err Error.ParsingFailure
+                            Err (Fatal Error.ParsingFailure)
 
                         result =
                             Project.init
@@ -85,7 +85,7 @@ suite =
                 \_ ->
                     let
                         expect =
-                            Err Error.MissingModuleDefinition
+                            Err (Fatal Error.MissingModuleDefinition)
 
                         result =
                             Project.init
@@ -102,7 +102,7 @@ suite =
                 \_ ->
                     let
                         expect =
-                            Err Error.MissingMainFunction
+                            Err (NonFatal Error.MissingMainFunction)
 
                         result =
                             Project.init
@@ -119,7 +119,7 @@ suite =
                 \_ ->
                     let
                         expect =
-                            Err Error.MissingMainSignature
+                            Err (Fatal Error.MissingMainSignature)
 
                         result =
                             Project.init

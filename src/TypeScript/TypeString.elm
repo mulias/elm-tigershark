@@ -1,7 +1,7 @@
 module TypeScript.TypeString exposing (InteropDirection(..), TypeString, toTypeString)
 
 import Elm.Interop exposing (Interop(..))
-import Error exposing (Error)
+import Error exposing (Error(..))
 import Result.Extra
 
 

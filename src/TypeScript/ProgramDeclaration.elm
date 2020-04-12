@@ -4,7 +4,6 @@ import Elm.AST exposing (SignatureAST, TypeAnnotationAST(..))
 import Elm.Interop exposing (Interop(..), PortInterop(..), ProgramInterop)
 import Elm.PortModule as PortModule
 import Elm.ProgramInterface exposing (ProgramInterface)
-import Error exposing (Error)
 import Result.Extra
 import TypeScript.TSDoc as TSDoc
 import TypeScript.TypeString exposing (InteropDirection(..), TypeString, toTypeString)

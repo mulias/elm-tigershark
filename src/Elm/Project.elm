@@ -5,7 +5,7 @@ import Elm.ModulePath as ModulePath exposing (ModuleNamespace, ModulePath)
 import Elm.Parser as Parser
 import Elm.Processing as Processing
 import Elm.Syntax.File exposing (File)
-import Error exposing (Error)
+import Error exposing (Error(..))
 import Parser exposing (DeadEnd, Problem(..))
 
 
@@ -74,15 +74,17 @@ readFile : ModulePath -> Project -> Result Error File
 readFile modulePath project =
     case Dict.get modulePath project of
         Nothing ->
-            Err (Error.FileNotFound { modulePath = modulePath })
+            Err (Fatal (Error.FileNotFound { modulePath = modulePath }))
 
         Just projectFile ->
             projectFile.contents
                 |> Result.fromMaybe
-                    (Error.FileNotRead
-                        { sourceDirectory = projectFile.sourceDirectory
-                        , modulePath = projectFile.modulePath
-                        }
+                    (NonFatal
+                        (Error.FileNotRead
+                            { sourceDirectory = projectFile.sourceDirectory
+                            , modulePath = projectFile.modulePath
+                            }
+                        )
                     )
                 |> Result.andThen parse
 
@@ -90,7 +92,7 @@ readFile modulePath project =
 readFileWithNamespace : ModuleNamespace -> Project -> Result Error File
 readFileWithNamespace moduleNamespace project =
     ModulePath.fromNamespace moduleNamespace
-        |> Result.fromMaybe Error.EmptyFilePath
+        |> Result.fromMaybe (Fatal Error.EmptyFilePath)
         |> Result.andThen (\modulePath -> readFile modulePath project)
 
 
@@ -109,10 +111,10 @@ parse code =
         |> Result.mapError
             (\err ->
                 if isMissingModuleDefinitionError err then
-                    Error.MissingModuleDefinition
+                    Fatal Error.MissingModuleDefinition
 
                 else
-                    Error.ParsingFailure
+                    Fatal Error.ParsingFailure
             )
 
 

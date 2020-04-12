@@ -3,7 +3,7 @@ module TypeTest exposing (..)
 import Elm.AST exposing (TypeAnnotationAST(..))
 import Elm.Project as Project
 import Elm.Type as Type
-import Error
+import Error exposing (Error(..))
 import Expect
 import Test exposing (..)
 
@@ -124,7 +124,7 @@ suite =
                 \_ ->
                     let
                         expected =
-                            Err Error.SubstituteTypeNotFound
+                            Err (Fatal Error.SubstituteTypeNotFound)
 
                         result =
                             { moduleContext = [ "Foo" ]
@@ -140,7 +140,7 @@ suite =
                 \_ ->
                     let
                         expected =
-                            Err Error.AliasTypeNotFound
+                            Err (Fatal Error.AliasTypeNotFound)
 
                         result =
                             { moduleContext = [ "Baz" ]
@@ -203,7 +203,7 @@ suite =
                 \_ ->
                     let
                         expected =
-                            Err Error.AliasTypeNotFound
+                            Err (Fatal Error.AliasTypeNotFound)
 
                         result =
                             { moduleContext = [ "MiscTypes" ]

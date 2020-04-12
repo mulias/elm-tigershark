@@ -9,7 +9,7 @@ import Elm.Project as Project exposing (Project)
 import Elm.Syntax.Declaration exposing (Declaration(..))
 import Elm.Syntax.File exposing (File)
 import Elm.Syntax.Node as Node
-import Error exposing (Error)
+import Error exposing (Error(..))
 import Maybe.Extra
 import Result.Extra
 import Util.Elm.Syntax.File exposing (fileModuleNameList, moduleExposes)
@@ -60,7 +60,7 @@ dealiasAndNormalize project { moduleContext, typeAnnotation } =
                 subbedTypeAnnotation
 
         _ ->
-            Err Error.SubstituteTypeNotFound
+            Err (Fatal Error.SubstituteTypeNotFound)
 
 
 {-| Try to find an alias to substitute in for an uninteroperable value. First
@@ -104,7 +104,7 @@ substitute typeToFind foundType =
     case typeAnnotation of
         GenericTypeAST typeVar ->
             substituteTypeVar typeVar
-                |> Result.fromMaybe Error.TypeVariableNotFound
+                |> Result.fromMaybe (Fatal Error.TypeVariableNotFound)
 
         TypedAST ( modulePrefix, typeName ) foundTypeArgs ->
             foundTypeArgs
@@ -138,7 +138,7 @@ substitute typeToFind foundType =
 
         GenericRecordAST recordTypeVar constraint ->
             substituteTypeVar recordTypeVar
-                |> Result.fromMaybe Error.TypeVariableNotFound
+                |> Result.fromMaybe (Fatal Error.TypeVariableNotFound)
 
         FunctionTypeAnnotationAST typeA typeB ->
             Result.map2 FunctionTypeAnnotationAST
@@ -169,10 +169,10 @@ getLocalAlias file { moduleContext, modulePrefix, typeName, typeArgs } =
                     else
                         Nothing
                 )
-            |> Result.fromMaybe Error.AliasTypeNotFound
+            |> Result.fromMaybe (Fatal Error.AliasTypeNotFound)
 
     else
-        Err Error.AliasTypeNotFound
+        Err (Fatal Error.AliasTypeNotFound)
 
 
 {-| If the unknown type is the correct shape to be a `Json.Decode.Value` or
@@ -190,7 +190,7 @@ getJsonValueType file typeToFind =
         jsonCodecImports file
             |> List.filter (importCouldIncludeType typeToFind)
             |> List.head
-            |> Result.fromMaybe Error.AliasTypeNotFound
+            |> Result.fromMaybe (Fatal Error.AliasTypeNotFound)
             |> Result.map
                 (\jsonImport ->
                     { moduleContext = jsonImport.moduleName
@@ -200,7 +200,7 @@ getJsonValueType file typeToFind =
                 )
 
     else
-        Err Error.AliasTypeNotFound
+        Err (Fatal Error.AliasTypeNotFound)
 
 
 {-| Search through the file's imported modules that might be importing the
@@ -222,14 +222,14 @@ getImportedAlias project file typeToFind =
                                 getLocalAlias importFile { typeToFind | moduleContext = moduleName, modulePrefix = [] }
 
                             else
-                                Err Error.AliasTypeNotFound
+                                Err (Fatal Error.AliasTypeNotFound)
                         )
             )
-            Error.AliasTypeNotFound
+            (Fatal Error.AliasTypeNotFound)
         -- Cover case where all of the modules in the list are extrnal
         -- libraries. We want to return the AliasTypeNotFound error,
         -- instead of the ModuleNotFound error.
-        |> Result.mapError (always Error.AliasTypeNotFound)
+        |> Result.mapError (always (Fatal Error.AliasTypeNotFound))
 
 
 {-| Get all alias declarations from a file.
