@@ -1,6 +1,6 @@
 {
   "name": "elm-tigershark",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "conversations between a tree and a fish",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
