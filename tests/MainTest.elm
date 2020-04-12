@@ -108,7 +108,7 @@ export namespace Elm {
         export function init(options: {
           node?: HTMLElement | null;
           flags: {startingNum: number};
-        }): Elm.Counter.App;
+        }): Elm.Double.Nested.Counter.App;
       }
     }
   }
