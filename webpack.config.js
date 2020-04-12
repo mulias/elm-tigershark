@@ -32,7 +32,7 @@ module.exports = (env, argv) => ({
   },
   plugins: [
     new ElmTigersharkPlugin(
-      "elm make src/Main/Program.elm --output=/dev/null && tigershark src/Main/Program.elm --output=src/elm.d.ts --tsModule='*.elm' && prettier src/elm.d.ts --write"
+      "elm make src/Main/Program.elm --output=/dev/null && tigershark src/Main/Program.elm --output=src/declarations/elm.d.ts --tsModule='*.elm' && prettier src/declarations/elm.d.ts --write"
     )
   ],
   resolve: {
