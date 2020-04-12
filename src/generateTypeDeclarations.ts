@@ -1,4 +1,4 @@
-import { Elm } from "./Main.elm";
+import { Elm } from "./Main/Program.elm";
 import { Flags } from "./elmAppTypes";
 import { ProjectFile, ProjectFilePath } from "./elmFiles";
 
@@ -12,10 +12,10 @@ export interface Callbacks {
 }
 
 export const generateTypeDeclarations = (
-  flags: Flags<typeof Elm.Main>,
+  flags: Flags<typeof Elm.Main.Program>,
   { onFetchFile, onWriteFile, onReportError }: Callbacks
 ): void => {
-  const program = Elm.Main.init({ flags });
+  const program = Elm.Main.Program.init({ flags });
 
   program.ports.fetchFile.subscribe(projectFilePath =>
     onFetchFile(projectFilePath, program.ports.fileFetched.send)

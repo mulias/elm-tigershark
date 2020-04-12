@@ -1,4 +1,4 @@
-port module Main exposing (main)
+port module Main.Program exposing (main)
 
 import Elm.Interop as Interop
 import Elm.ModulePath exposing (ModulePath)
