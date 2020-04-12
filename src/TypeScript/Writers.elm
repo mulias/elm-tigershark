@@ -152,9 +152,13 @@ portDeclaration { name, body } =
 `moduleName` is needed for the namespaced function return type, and the flags
 are used as the second argument to the function, if the program accepts flags.
 -}
-initFn : { moduleName : String, flags : String } -> Writer
-initFn { moduleName, flags } =
+initFn : { moduleParents : List String, moduleName : String, flags : String } -> Writer
+initFn { moduleParents, moduleName, flags } =
     let
+        modulePath =
+            List.append moduleParents [ moduleName ]
+                |> String.join "."
+
         template =
             """export function init(options: {
   node?: HTMLElement | null;
@@ -162,6 +166,6 @@ initFn { moduleName, flags } =
 }): Elm.{1}.App;"""
 
         content =
-            interpolate template [ flags, moduleName ]
+            interpolate template [ flags, modulePath ]
     in
     writer { format = always content, children = [] }

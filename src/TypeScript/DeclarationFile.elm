@@ -50,7 +50,7 @@ programDeclaration { moduleParents, moduleName, docs, flags, ports } =
         [ namespace { docs = docs, export = False, name = moduleName }
             [ interface { export = True, name = "App" }
                 [ portFns ports ]
-            , initFn { moduleName = moduleName, flags = flags }
+            , initFn { moduleParents = moduleParents, moduleName = moduleName, flags = flags }
             ]
         ]
 
