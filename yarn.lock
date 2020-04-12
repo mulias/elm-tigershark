@@ -1060,43 +1060,11 @@ elm-test@^0.19.1-revision2:
     which "2.0.1"
     xmlbuilder "^13.0.2"
 
-elm-tigershark@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.3.tgz#23f5f6616163bbc98246a31b0972e92d5f60dcdb"
-  integrity sha512-S8qY3N6hfgZ7sXChAErdkkDLCwkyrFecDXgNZECPToGz1zK3sKtCWtemevv4UT2FKLkRyb7T4dMWdqUbnArrrg==
+elm-tigershark@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.8.tgz#c137a96f5fdbbd273e24062ccf135875c2ba1045"
+  integrity sha512-6dOgbBEWC5iygUVp13LYVjKpJiDZD8pu0W3GH8Z7SXgmB/MO0B9oZLPa1VHVG6tA6eHBMG5jX3feXBB1xEAxYQ==
   dependencies:
-    glob "^7.1.6"
-
-elm-tigershark@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.4.tgz#02f28fba37b7d38d06ccff097355609f5317747c"
-  integrity sha512-kvYbDEUojeLYPs1C67z6aofBRMbK+NgojxNx1V9NQqqPCL+F21w23QLpx9JRvvSb3XomgXeZLzW0XxmGjNDynw==
-  dependencies:
-    elm-tigershark "^0.0.3"
-    glob "^7.1.6"
-
-elm-tigershark@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.5.tgz#d282de6ef98585b5c24219d4dbccf2c7c3fe2d20"
-  integrity sha512-1mqdd1DBwZBPOP5SQ4gLNLeokQA1IvG94KzIWfBQgFba4XDqFypsDS6jv24EZoEcSI3qOI4iLzN6dQTiTuxtHA==
-  dependencies:
-    elm-tigershark "^0.0.4"
-    glob "^7.1.6"
-
-elm-tigershark@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.6.tgz#b72bb46dbd459b9b8dc075d04f807b5274b8274f"
-  integrity sha512-TFEXayEWmnlZTO8GTAryWSitFGEgGUmwyoUHbat6JZcXK/TS1ccj2Oekkeaq2KNXRZB/DqJRPX+u/mD5NAVlHw==
-  dependencies:
-    elm-tigershark "^0.0.5"
-    glob "^7.1.6"
-
-elm-tigershark@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.7.tgz#e8623b16828948f8373a74a8c8fe8c441e653706"
-  integrity sha512-yJFBowp4WA0rwyR12jQIbIeoMf5Tk/+2I1OHMfgwp+iEOswpgUcwnXDeJ9/igFsOXsZQc1vOP0IkAS+KKeS0DA==
-  dependencies:
-    elm-tigershark "^0.0.6"
     glob "^7.1.6"
 
 elm-webpack-loader@^6.0.1:
