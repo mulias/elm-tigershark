@@ -90,12 +90,7 @@ fromProgramInterface project programInterface =
 
 programFlags : Project -> ProgramInterface -> Result Error Interop
 programFlags project { modulePath, flags } =
-    case fromAST project (ModulePath.toNamespace modulePath) flags of
-        Ok interop ->
-            Ok interop
-
-        Err unknownType ->
-            Err (Fatal Error.UninteroperableType)
+    fromAST project (ModulePath.toNamespace modulePath) flags
 
 
 programPorts : Project -> ProgramInterface -> Result Error (List PortInterop)

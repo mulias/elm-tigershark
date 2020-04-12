@@ -226,10 +226,6 @@ getImportedAlias project file typeToFind =
                         )
             )
             (Fatal Error.AliasTypeNotFound)
-        -- Cover case where all of the modules in the list are extrnal
-        -- libraries. We want to return the AliasTypeNotFound error,
-        -- instead of the ModuleNotFound error.
-        |> Result.mapError (always (Fatal Error.AliasTypeNotFound))
 
 
 {-| Get all alias declarations from a file.
