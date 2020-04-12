@@ -47,14 +47,12 @@ init { inputFilePaths, projectFiles, tsModule } =
     , declarationFileConfig = { declareInModule = tsModule }
     }
         |> processInputFiles
-        |> performSideEffects
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update (FileFetched projectFile) model =
     { model | project = Project.updateFile projectFile model.project }
         |> processInputFiles
-        |> performSideEffects
 
 
 subscriptions : model -> Sub Msg
@@ -62,26 +60,40 @@ subscriptions =
     always (fileFetched FileFetched)
 
 
-processInputFiles : Model -> Result ( Error, Model ) Model
+processInputFiles : Model -> ( Model, Cmd Msg )
 processInputFiles model =
     let
-        { project, filesToProcess, declarations } =
+        { project, filesToProcess, declarations, declarationFileConfig } =
             model
     in
     case filesToProcess of
         [] ->
-            Ok model
+            if List.isEmpty declarations then
+                ( model, reportError (Error.toString Error.MissingMainFunction) )
+
+            else
+                ( model, writeFile (DeclarationFile.write declarationFileConfig declarations) )
 
         { modulePath } :: restFiles ->
             case generateProgramDeclaration project modulePath of
                 Ok declaration ->
-                    Ok { model | declarations = declaration :: declarations }
+                    processInputFiles
+                        { model
+                            | filesToProcess = restFiles
+                            , declarations = declaration :: declarations
+                        }
 
                 Err Error.MissingMainFunction ->
-                    Ok { model | filesToProcess = restFiles }
+                    processInputFiles
+                        { model
+                            | filesToProcess = restFiles
+                        }
+
+                Err (Error.FileNotRead filePath) ->
+                    ( model, fetchFile filePath )
 
                 Err error ->
-                    Err ( error, model )
+                    ( model, reportError (Error.toString error) )
 
 
 generateProgramDeclaration : Project -> ModulePath -> Result Error ProgramDeclaration
@@ -91,27 +103,6 @@ generateProgramDeclaration project modulePath =
         |> Result.map (ProgramInterface.addImportedPorts project)
         |> Result.andThen (Interop.fromProgramInterface project)
         |> Result.map ProgramDeclaration.fromInterop
-
-
-performSideEffects : Result ( Error, Model ) Model -> ( Model, Cmd Msg )
-performSideEffects result =
-    case result of
-        Ok model ->
-            let
-                { declarations, declarationFileConfig } =
-                    model
-            in
-            if List.isEmpty declarations then
-                ( model, reportError (Error.toString Error.MissingMainFunction) )
-
-            else
-                ( model, writeFile (DeclarationFile.write declarationFileConfig declarations) )
-
-        Err ( Error.FileNotRead filePath, model ) ->
-            ( model, fetchFile filePath )
-
-        Err ( error, model ) ->
-            ( model, reportError (Error.toString error) )
 
 
 port writeFile : String -> Cmd msg
