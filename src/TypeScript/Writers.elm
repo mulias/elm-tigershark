@@ -15,7 +15,7 @@ Writers are composed.
 import String exposing (join)
 import String.Interpolate exposing (interpolate)
 import Util.String exposing (indented)
-import Writer exposing (Writer, writer)
+import Util.Writer as Writer exposing (Writer, writer)
 
 
 {-| Writer for a comment warning that the file is auto-generated.

@@ -1,4 +1,4 @@
-module Writer exposing (Writer, file, lines, newline, toString, writer)
+module Util.Writer exposing (Writer, file, lines, newline, toString, writer)
 
 {-| A simple templating system. Writers define structure in plain text, similar
 to how Elm's HTML library defines structure for webpages. A Writer encapsulates
