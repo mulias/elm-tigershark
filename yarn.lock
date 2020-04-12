@@ -1060,10 +1060,10 @@ elm-test@^0.19.1-revision2:
     which "2.0.1"
     xmlbuilder "^13.0.2"
 
-elm-tigershark@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.8.tgz#c137a96f5fdbbd273e24062ccf135875c2ba1045"
-  integrity sha512-6dOgbBEWC5iygUVp13LYVjKpJiDZD8pu0W3GH8Z7SXgmB/MO0B9oZLPa1VHVG6tA6eHBMG5jX3feXBB1xEAxYQ==
+elm-tigershark@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/elm-tigershark/-/elm-tigershark-0.0.9.tgz#c7b72be54175a42e380b75f98a6f29b4cf0a2c64"
+  integrity sha512-kCGmNqy02DoZFJWpZX9v8gyJNkwDQCv/0IMz2S2QfhDEWrBamZHHpudDgaaIEZVGc8xrafdoZQ94wNPCIT9WAA==
   dependencies:
     glob "^7.1.6"
 
