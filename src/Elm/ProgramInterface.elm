@@ -88,23 +88,34 @@ program interface.
     assume everything is used.
 
 -}
-addImportedPorts : Project -> ProgramInterface -> ProgramInterface
+addImportedPorts : Project -> ProgramInterface -> Result Error ProgramInterface
 addImportedPorts project programInterface =
     case programInterface.ports of
         ModuleWithPorts ports ->
-            List.map (readImportedModule project) programInterface.file.imports
-                |> List.filterMap Result.toMaybe
-                |> List.map getPortsExposedByModule
-                |> List.filterMap PortModule.toMaybe
-                |> List.concat
-                |> (\importedPorts ->
-                        { programInterface
-                            | ports = ModuleWithPorts (List.concat [ ports, importedPorts ])
-                        }
-                   )
+            programInterface.file.imports
+                |> List.map getModulePathFromNode
+                |> Result.Extra.combine
+                |> Result.map (List.filter (\modulePath -> Project.isProjectFile modulePath project))
+                |> Result.andThen (List.map (readImportedModule project) >> Result.Extra.combine)
+                |> Result.map
+                    (\files ->
+                        files
+                            |> List.map getPortsExposedByModule
+                            |> List.filterMap PortModule.toMaybe
+                            |> List.concat
+                            |> (\importedPorts ->
+                                    { programInterface
+                                        | ports =
+                                            ModuleWithPorts
+                                                (List.concat
+                                                    [ ports, importedPorts ]
+                                                )
+                                    }
+                               )
+                    )
 
         NotPortModule ->
-            programInterface
+            Ok programInterface
 
 
 {-| Elm modules are described as a path with period separators, for example
@@ -240,15 +251,21 @@ getPortDeclarationFromNode declarationNode =
             Nothing
 
 
+getModulePathFromNode : Node Import -> Result Error ModulePath
+getModulePathFromNode importNode =
+    importNode
+        |> Node.value
+        |> .moduleName
+        |> Node.value
+        |> ModulePath.fromNamespace
+        |> Result.fromMaybe (Fatal Error.EmptyFilePath)
+
+
 {-| Given the Project, which contains all local Elm files, retrieve and parse
 the file which is specified by the import AST. Fails if the file can't be found
 in the project, which means either the code is not correctly compiling, or the
 import is for an external library.
 -}
-readImportedModule : Project -> Node Import -> Result Error File
-readImportedModule project importNode =
-    let
-        moduleNames =
-            importNode |> Node.value |> .moduleName |> Node.value
-    in
-    Project.readFileWithNamespace moduleNames project
+readImportedModule : Project -> ModulePath -> Result Error File
+readImportedModule project modulePath =
+    Project.readFile modulePath project

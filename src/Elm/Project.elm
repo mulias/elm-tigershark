@@ -1,4 +1,4 @@
-module Elm.Project exposing (Project, ProjectFile, ProjectFilePath, init, readFile, readFileWithNamespace, updateFile)
+module Elm.Project exposing (Project, ProjectFile, ProjectFilePath, init, isProjectFile, readFile, readFileWithNamespace, updateFile)
 
 import Dict exposing (Dict)
 import Elm.ModulePath as ModulePath exposing (ModuleNamespace, ModulePath)
@@ -6,6 +6,7 @@ import Elm.Parser as Parser
 import Elm.Processing as Processing
 import Elm.Syntax.File exposing (File)
 import Main.Error as Error exposing (Error(..))
+import Maybe.Extra
 import Parser exposing (DeadEnd, Problem(..))
 
 
@@ -94,6 +95,11 @@ readFileWithNamespace moduleNamespace project =
     ModulePath.fromNamespace moduleNamespace
         |> Result.fromMaybe (Fatal Error.EmptyFilePath)
         |> Result.andThen (\modulePath -> readFile modulePath project)
+
+
+isProjectFile : ModulePath -> Project -> Bool
+isProjectFile modulePath project =
+    Dict.get modulePath project |> Maybe.Extra.isJust
 
 
 {-| Parse module code and produce an `Elm.Syntax.File` AST, or fail with a

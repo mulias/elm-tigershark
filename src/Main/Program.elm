@@ -100,7 +100,7 @@ generateProgramDeclaration : Project -> ModulePath -> Result Error ProgramDeclar
 generateProgramDeclaration project modulePath =
     Project.readFile modulePath project
         |> Result.andThen ProgramInterface.fromFile
-        |> Result.map (ProgramInterface.addImportedPorts project)
+        |> Result.andThen (ProgramInterface.addImportedPorts project)
         |> Result.andThen (Interop.fromProgramInterface project)
         |> Result.map ProgramDeclaration.fromInterop
 

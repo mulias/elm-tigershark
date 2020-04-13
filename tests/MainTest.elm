@@ -30,7 +30,7 @@ suite =
                     result =
                         Project.readFile ( [ "Double", "Nested" ], "Counter" ) project
                             |> Result.andThen ProgramInterface.fromFile
-                            |> Result.map (ProgramInterface.addImportedPorts project)
+                            |> Result.andThen (ProgramInterface.addImportedPorts project)
                             |> Result.andThen (Interop.fromProgramInterface project)
                             |> Result.map ProgramDeclaration.fromInterop
                             |> Result.map List.singleton
