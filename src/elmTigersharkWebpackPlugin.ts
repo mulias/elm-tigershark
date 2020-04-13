@@ -14,7 +14,7 @@ const getChangedFiles = (compiler: Compiler) => {
   return Object.keys(watcher.mtimes);
 };
 
-export class ElmTigersharkPlugin {
+export class ElmTigersharkWebpackPlugin {
   process: ChildProcess | null;
   command: string;
 
