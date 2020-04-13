@@ -27,17 +27,12 @@ export const allProjectFilePaths = (config: ElmConfig): ProjectFilePath[] => {
 };
 
 // The ProjectFilePath for a specific file path string
-export const projectFilePathFromString = (
-  filePath: string,
-  config: ElmConfig
-): ProjectFilePath => {
+export const projectFilePathFromString = (filePath: string, config: ElmConfig): ProjectFilePath => {
   const fullPath = filePath.slice(0, -4).split(path.sep);
   const srcDirPaths = config.sourceDirectories.map(dir => dir.split(path.sep));
   const sourceDirectory =
     srcDirPaths.find(
-      dirPath =>
-        path.join(...fullPath.slice(0, dirPath.length)) ===
-        path.join(...dirPath)
+      dirPath => path.join(...fullPath.slice(0, dirPath.length)) === path.join(...dirPath)
     ) || [];
 
   return {
@@ -46,9 +41,7 @@ export const projectFilePathFromString = (
   };
 };
 
-export const readProjectFile = (
-  projectFilePath: ProjectFilePath
-): ProjectFile | undefined => {
+export const readProjectFile = (projectFilePath: ProjectFilePath): ProjectFile | undefined => {
   const file = makeFilePath(projectFilePath);
   if (fs.existsSync(file)) {
     return {
@@ -66,10 +59,7 @@ const usedDirectories = (dirList: string[]): string[] =>
 const dirFilePaths = (dir: string): ProjectFilePath[] => {
   const fullPaths = glob.sync(path.join(dir, "**", "*.elm"), {
     sync: true,
-    ignore: [
-      path.join("**", "node_modules", "**", "*"),
-      path.join("**", "elm-stuff", "**", "*")
-    ]
+    ignore: [path.join("**", "node_modules", "**", "*"), path.join("**", "elm-stuff", "**", "*")]
   });
 
   const sourceDirectory = dir.split(path.sep);
@@ -98,5 +88,4 @@ const makeModulePath = (filePath: string[]): ModulePath => {
   return [moduleNamespace.reverse(), moduleName];
 };
 
-const flatten = <T>(list: Array<Array<T>>): Array<T> =>
-  ([] as Array<T>).concat(...list);
+const flatten = <T>(list: Array<Array<T>>): Array<T> => ([] as Array<T>).concat(...list);

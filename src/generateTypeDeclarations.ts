@@ -3,10 +3,7 @@ import { Flags } from "./elmProgram/types";
 import { ProjectFile, ProjectFilePath } from "./elmProgram/projectFile";
 
 export interface Callbacks {
-  onFetchFile: (
-    filePath: ProjectFilePath,
-    fileFetched: (projectFile: ProjectFile) => void
-  ) => void;
+  onFetchFile: (filePath: ProjectFilePath, fileFetched: (projectFile: ProjectFile) => void) => void;
   onWriteFile: (declarations: string) => void;
   onReportError: (error: string) => void;
 }

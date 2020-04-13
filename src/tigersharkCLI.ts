@@ -70,8 +70,7 @@ if (versionFlag) {
 //
 
 const inputsInvalid = inputArgs.some(input => !input.endsWith(".elm"));
-const outputInvalid =
-  outputArgs.length !== 1 || !outputArgs[0].endsWith(".d.ts");
+const outputInvalid = outputArgs.length !== 1 || !outputArgs[0].endsWith(".d.ts");
 const tsModuleInvalid = tsModuleArgs.length > 1;
 
 if (inputsInvalid || outputInvalid || tsModuleInvalid) {
@@ -79,16 +78,12 @@ if (inputsInvalid || outputInvalid || tsModuleInvalid) {
 }
 
 // the input file path is relative to one of the projectDirectories in the elmConfig
-const inputFilePaths = inputArgs.map(filePath =>
-  projectFilePathFromString(filePath, elmConfig)
-);
+const inputFilePaths = inputArgs.map(filePath => projectFilePathFromString(filePath, elmConfig));
 
 // the output file path can be anywhere, so it's just a string
 const outputFileLocation = outputArgs[0].replace(/^--output=/, "");
 
-const tsModule = !!tsModuleArgs.length
-  ? tsModuleArgs[0].replace(/^--tsModule=/, "")
-  : null;
+const tsModule = !!tsModuleArgs.length ? tsModuleArgs[0].replace(/^--tsModule=/, "") : null;
 
 //
 // Find all of the Elm files in the project, but don't read them yet

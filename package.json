@@ -34,5 +34,8 @@
   },
   "dependencies": {
     "glob": "^7.1.6"
+  },
+  "prettier": {
+    "printWidth": 100
   }
 }
