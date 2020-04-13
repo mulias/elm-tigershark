@@ -1,6 +1,6 @@
 const webpack = require("webpack");
 const path = require("path");
-const { ElmTigersharkPlugin } = require("elm-tigershark");
+const { ElmTigersharkWebpackPlugin } = require("elm-tigershark");
 
 module.exports = (env, argv) => ({
   entry: {
@@ -31,7 +31,7 @@ module.exports = (env, argv) => ({
     ]
   },
   plugins: [
-    new ElmTigersharkPlugin(
+    new ElmTigersharkWebpackPlugin(
       "elm make src/Main/Program.elm --output=/dev/null && tigershark src/Main/Program.elm --output=src/declarations/elm.d.ts --tsModule='*.elm' && prettier src/declarations/elm.d.ts --write"
     )
   ],
