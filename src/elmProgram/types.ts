@@ -1,4 +1,7 @@
-type ElmApp<Flags, Ports> = {
+/**
+ * The type of an Elm 0.19 program which can be mounted by TypeScript.
+ */
+export type ElmProgram<Flags, Ports> = {
   init: (options: { flags: Flags }) => { ports: Ports };
 };
 
@@ -6,7 +9,10 @@ type ElmApp<Flags, Ports> = {
  * A helper type for extracting the shape of the ports object from an
  * Elm 0.19 app with a type declaration.
  */
-export type Ports<T extends ElmApp<any, any>> = T extends ElmApp<any, infer P>
+export type Ports<T extends ElmProgram<any, any>> = T extends ElmProgram<
+  any,
+  infer P
+>
   ? P
   : never;
 
@@ -14,6 +20,9 @@ export type Ports<T extends ElmApp<any, any>> = T extends ElmApp<any, infer P>
  * A helper type for extracting the shape of the flags argument from an
  * Elm 0.19 app with a type declaration.
  */
-export type Flags<T extends ElmApp<any, any>> = T extends ElmApp<infer F, any>
+export type Flags<T extends ElmProgram<any, any>> = T extends ElmProgram<
+  infer F,
+  any
+>
   ? F
   : never;

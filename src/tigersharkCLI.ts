@@ -1,14 +1,14 @@
 import * as fs from "fs";
 import * as path from "path";
 import { generateTypeDeclarations } from "./generateTypeDeclarations";
-import { tryReadConfig, isSupportedVersion } from "./elmConfig";
+import { tryReadConfig, isSupportedVersion } from "./elmProgram/configFile";
 import {
   ProjectFile,
   ProjectFilePath,
   allProjectFilePaths,
   projectFilePathFromString,
   readProjectFile
-} from "./elmFiles";
+} from "./elmProgram/projectFile";
 
 //
 // Protect process from SIGTERM requests while writing output

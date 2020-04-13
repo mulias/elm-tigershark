@@ -1,6 +1,6 @@
 import { Elm } from "./Main/Program.elm";
-import { Flags } from "./elmAppTypes";
-import { ProjectFile, ProjectFilePath } from "./elmFiles";
+import { Flags } from "./elmProgram/types";
+import { ProjectFile, ProjectFilePath } from "./elmProgram/projectFile";
 
 export interface Callbacks {
   onFetchFile: (

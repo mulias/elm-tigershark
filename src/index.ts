@@ -1,5 +1,11 @@
 import { generateTypeDeclarations } from "./generateTypeDeclarations";
-import { ElmTigersharkPlugin } from "./webpackPlugin";
-import { Flags, Ports } from "./elmAppTypes";
+import { ElmTigersharkPlugin } from "./elmTigersharkWebpackPlugin";
+import { ElmProgram, Flags, Ports } from "./elmProgram/types";
 
-export { generateTypeDeclarations, ElmTigersharkPlugin, Flags, Ports };
+export {
+  generateTypeDeclarations,
+  ElmTigersharkPlugin,
+  ElmProgram,
+  Flags,
+  Ports
+};

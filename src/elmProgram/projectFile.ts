@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as glob from "glob";
 import * as path from "path";
-import { ElmConfig } from "./elmConfig";
+import { ElmConfig } from "./configFile";
 
 // A directory path without separators, e.g. ["foo", "src"] instead of "foo/src/"
 export type DirPath = string[];
