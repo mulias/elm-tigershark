@@ -1,4 +1,4 @@
-module Elm.ProgramInterface exposing (ProgramInterface, addImportedPorts, fromFile)
+module Elm.ProgramInterface exposing (ProgramInterface, fromFile)
 
 {-| Parse an Elm module, attempt to locate a `main` function with a `Program`
 type, and collect the parts of the AST relevant to the TypeScript declaration
@@ -9,7 +9,7 @@ import Elm.AST exposing (ExposingAST(..), SignatureAST, TypeAnnotationAST(..), t
 import Elm.ElmDoc as ElmDoc exposing (ElmDoc)
 import Elm.ModulePath as ModulePath exposing (ModulePath)
 import Elm.Parser as Parser
-import Elm.PortModule as PortModule exposing (PortModule(..))
+import Elm.PortModule as PortModule exposing (Port, PortModule(..))
 import Elm.Processing as Processing
 import Elm.Project as Project exposing (Project)
 import Elm.RawFile as RawFile
@@ -50,72 +50,25 @@ and only extracts the information provided in that module. Additional
 processing may be necessary to add information from imported modules.
 
 -}
-fromFile : File -> Result Error ProgramInterface
-fromFile file =
+fromFile : Project -> File -> Result Error ProgramInterface
+fromFile project file =
     let
         mainFunction =
             getMainFunction file
     in
-    Result.map3
-        (\modulePath docs flags ->
+    Result.map4
+        (\modulePath docs flags ports ->
             { file = file
             , modulePath = modulePath
             , docs = docs
             , flags = flags
-            , ports = getPortsInModule file
+            , ports = ports
             }
         )
         (getModulePath file)
         (Result.map getDocumentation mainFunction)
         (Result.andThen getFlags mainFunction)
-
-
-{-| Collect all modules imported by the program's module, and if any of those
-imported modules are also port modules, add the ports they expose to the
-program interface.
-
-  - In the cases where we fail to find an imported module in the project,
-    assume that it's an external library import and ignore that module. Elm
-    libraries can't use ports.
-
-  - Elm does not allow re-exporting imports, so only direct imports need to be
-    checked, no recursive searching necessary.
-
-  - Add all exposed port declarations found in imported port modules. Since we
-    don't examine program code, only type signatures, we can't tell when a port
-    is being used, what ports are being used, or if the port is called prefixed
-    like `MyModule.myPort`, or unprefixed like `myPort`. The safest option is to
-    assume everything is used.
-
--}
-addImportedPorts : Project -> ProgramInterface -> Result Error ProgramInterface
-addImportedPorts project programInterface =
-    case programInterface.ports of
-        ModuleWithPorts ports ->
-            programInterface.file.imports
-                |> List.map getModulePathFromNode
-                |> Result.Extra.combine
-                |> Result.map (List.filter (\modulePath -> Project.isProjectFile modulePath project))
-                |> Result.andThen (List.map (readImportedModule project) >> Result.Extra.combine)
-                |> Result.map
-                    (\files ->
-                        files
-                            |> List.map getPortsExposedByModule
-                            |> List.filterMap PortModule.toMaybe
-                            |> List.concat
-                            |> (\importedPorts ->
-                                    { programInterface
-                                        | ports =
-                                            ModuleWithPorts
-                                                (List.concat
-                                                    [ ports, importedPorts ]
-                                                )
-                                    }
-                               )
-                    )
-
-        NotPortModule ->
-            Ok programInterface
+        (getPorts project file)
 
 
 {-| Elm modules are described as a path with period separators, for example
@@ -184,44 +137,91 @@ getFlags { signature } =
             )
 
 
-{-| Collect all the port function declarations that are in the given module,
-regardless of if the ports are exposed by the module or not. Returns a type
-which specifies of the module is not declared as a `port module`, and therefore
-can't have ports, or is a port module and has a (passably empty) list of ports.
--}
-getPortsInModule : File -> PortModule
-getPortsInModule file =
+getPorts : Project -> File -> Result Error PortModule
+getPorts project file =
     let
         moduleDef =
             Node.value file.moduleDefinition
 
         isPortModule =
             Module.isPortModule moduleDef
+    in
+    if isPortModule then
+        Result.map2
+            (\portsInModule importedPorts ->
+                ModuleWithPorts
+                    (List.concat [ portsInModule, importedPorts ])
+            )
+            (Ok (getPortsInModule file))
+            (getImportedPorts project file)
+
+    else
+        Ok NotPortModule
+
+
+{-| Collect all the port function declarations that are in the given module,
+regardless of if the ports are exposed by the module or not. Returns a type
+which specifies of the module is not declared as a `port module`, and therefore
+can't have ports, or is a port module and has a (passably empty) list of ports.
+-}
+getPortsInModule : File -> List Port
+getPortsInModule file =
+    let
+        moduleDef =
+            Node.value file.moduleDefinition
 
         moduleName =
             Module.moduleName moduleDef
     in
-    if isPortModule then
-        file.declarations
-            |> List.filterMap getPortDeclarationFromNode
-            |> List.map
-                (\{ name, typeAnnotation } ->
-                    { name = name
-                    , typeAnnotation = typeAnnotation
-                    , declaredInModule = moduleName
-                    }
-                )
-            |> ModuleWithPorts
+    file.declarations
+        |> List.filterMap getPortDeclarationFromNode
+        |> List.map
+            (\{ name, typeAnnotation } ->
+                { name = name
+                , typeAnnotation = typeAnnotation
+                , declaredInModule = moduleName
+                }
+            )
 
-    else
-        NotPortModule
+
+{-| Collect all modules imported by the program's module, and if any of those
+imported modules are also port modules, add the ports they expose to the
+program interface.
+
+  - In the cases where we fail to find an imported module in the project,
+    assume that it's an external library import and ignore that module. Elm
+    libraries can't use ports.
+
+  - Elm does not allow re-exporting imports, so only direct imports need to be
+    checked, no recursive searching necessary.
+
+  - Add all exposed port declarations found in imported port modules. Since we
+    don't examine program code, only type signatures, we can't tell when a port
+    is being used, what ports are being used, or if the port is called prefixed
+    like `MyModule.myPort`, or unprefixed like `myPort`. The safest option is to
+    assume everything is used.
+
+-}
+getImportedPorts : Project -> File -> Result Error (List Port)
+getImportedPorts project file =
+    file.imports
+        |> List.map getModulePathFromNode
+        |> Result.Extra.combine
+        |> Result.map (List.filter (\modulePath -> Project.isProjectFile modulePath project))
+        |> Result.andThen (List.map (\modulePath -> Project.readFile modulePath project) >> Result.Extra.combine)
+        |> Result.map
+            (\files ->
+                files
+                    |> List.map getPortsExposedByModule
+                    |> List.concat
+            )
 
 
 {-| Collects all of the port function declarations that are in the given
 module, and also exposed by the module. This is useful for when a main program
 module imports ports from other port modules.
 -}
-getPortsExposedByModule : File -> PortModule
+getPortsExposedByModule : File -> List Port
 getPortsExposedByModule file =
     let
         modulePorts =
@@ -238,7 +238,7 @@ getPortsExposedByModule file =
                 Explicit list ->
                     List.member name list
     in
-    PortModule.map (List.filter isExposedPort) modulePorts
+    List.filter isExposedPort modulePorts
 
 
 getPortDeclarationFromNode : Node Declaration -> Maybe SignatureAST
@@ -259,13 +259,3 @@ getModulePathFromNode importNode =
         |> Node.value
         |> ModulePath.fromNamespace
         |> Result.fromMaybe (Fatal Error.EmptyFilePath)
-
-
-{-| Given the Project, which contains all local Elm files, retrieve and parse
-the file which is specified by the import AST. Fails if the file can't be found
-in the project, which means either the code is not correctly compiling, or the
-import is for an external library.
--}
-readImportedModule : Project -> ModulePath -> Result Error File
-readImportedModule project modulePath =
-    Project.readFile modulePath project

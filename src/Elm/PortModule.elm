@@ -1,13 +1,13 @@
 module Elm.PortModule exposing (Port, PortModule(..), map, toMaybe, withDefault)
 
 import Elm.AST exposing (TypeAnnotationAST)
-import Elm.ModulePath exposing (ModuleName)
+import Elm.ModulePath exposing (ModuleNamespace)
 
 
 type alias Port =
     { name : String
     , typeAnnotation : TypeAnnotationAST
-    , declaredInModule : List ModuleName
+    , declaredInModule : ModuleNamespace
     }
 
 

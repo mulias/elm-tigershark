@@ -52,15 +52,17 @@ suite =
                                         ]
                                 }
 
-                        result =
+                        project =
                             Project.init
                                 [ { sourceDirectory = [ "src" ]
                                   , modulePath = ( [], "Counter" )
                                   , contents = Just ExampleModules.counter
                                   }
                                 ]
-                                |> Project.readFile ( [], "Counter" )
-                                |> Result.andThen ProgramInterface.fromFile
+
+                        result =
+                            Project.readFile ( [], "Counter" ) project
+                                |> Result.andThen (ProgramInterface.fromFile project)
                                 |> Result.map dropFileFromProgramInterface
                     in
                     Expect.equal expect result
@@ -70,15 +72,17 @@ suite =
                         expect =
                             Err (Fatal Error.ParsingFailure)
 
-                        result =
+                        project =
                             Project.init
                                 [ { sourceDirectory = [ "src" ]
                                   , modulePath = ( [], "BadSadCode" )
                                   , contents = Just ExampleModules.parsingFailure
                                   }
                                 ]
-                                |> Project.readFile ( [], "BadSadCode" )
-                                |> Result.andThen ProgramInterface.fromFile
+
+                        result =
+                            Project.readFile ( [], "BadSadCode" ) project
+                                |> Result.andThen (ProgramInterface.fromFile project)
                     in
                     Expect.equal expect result
             , test "fail when the module definition is missing" <|
@@ -87,15 +91,17 @@ suite =
                         expect =
                             Err (Fatal Error.MissingModuleDefinition)
 
-                        result =
+                        project =
                             Project.init
                                 [ { sourceDirectory = [ "src" ]
                                   , modulePath = ( [], "Main" )
                                   , contents = Just ExampleModules.missingModuleDefinition
                                   }
                                 ]
-                                |> Project.readFile ( [], "Main" )
-                                |> Result.andThen ProgramInterface.fromFile
+
+                        result =
+                            Project.readFile ( [], "Main" ) project
+                                |> Result.andThen (ProgramInterface.fromFile project)
                     in
                     Expect.equal expect result
             , test "fail when the module does not have a main function" <|
@@ -104,15 +110,17 @@ suite =
                         expect =
                             Err (NonFatal Error.MissingMainFunction)
 
-                        result =
+                        project =
                             Project.init
                                 [ { sourceDirectory = [ "src" ]
                                   , modulePath = ( [], "NoMain" )
                                   , contents = Just ExampleModules.missingMainFunction
                                   }
                                 ]
-                                |> Project.readFile ( [], "NoMain" )
-                                |> Result.andThen ProgramInterface.fromFile
+
+                        result =
+                            Project.readFile ( [], "NoMain" ) project
+                                |> Result.andThen (ProgramInterface.fromFile project)
                     in
                     Expect.equal expect result
             , test "fail when the main function does not have a signature" <|
@@ -121,15 +129,17 @@ suite =
                         expect =
                             Err (Fatal Error.MissingMainSignature)
 
-                        result =
+                        project =
                             Project.init
                                 [ { sourceDirectory = [ "src" ]
                                   , modulePath = ( [], "NoMainSig" )
                                   , contents = Just ExampleModules.missingMainSignature
                                   }
                                 ]
-                                |> Project.readFile ( [], "NoMainSig" )
-                                |> Result.andThen ProgramInterface.fromFile
+
+                        result =
+                            Project.readFile ( [], "NoMainSig" ) project
+                                |> Result.andThen (ProgramInterface.fromFile project)
                     in
                     Expect.equal expect result
             ]

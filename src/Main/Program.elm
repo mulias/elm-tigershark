@@ -99,8 +99,7 @@ processInputFiles model =
 generateProgramDeclaration : Project -> ModulePath -> Result Error ProgramDeclaration
 generateProgramDeclaration project modulePath =
     Project.readFile modulePath project
-        |> Result.andThen ProgramInterface.fromFile
-        |> Result.andThen (ProgramInterface.addImportedPorts project)
+        |> Result.andThen (ProgramInterface.fromFile project)
         |> Result.andThen (Interop.fromProgramInterface project)
         |> Result.map ProgramDeclaration.fromInterop
 

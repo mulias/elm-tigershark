@@ -35,7 +35,7 @@ suite =
 
                         result =
                             Project.readFile ( [], "Counter" ) project
-                                |> Result.andThen ProgramInterface.fromFile
+                                |> Result.andThen (ProgramInterface.fromFile project)
                                 |> Result.andThen (Interop.fromProgramInterface project)
                     in
                     Expect.equal expected result
