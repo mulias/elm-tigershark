@@ -17,6 +17,7 @@ programs. Based off of `elm-typescript-interop`.
 - [x] Include imported ports
 - [x] Multi-module parsing
 - [ ] Good error messages, CLI enhancements
+- [ ] Improve ElmTigersharkWebpackPlugin API
 - [ ] Real README documentation
 
 ### Later enhancements
