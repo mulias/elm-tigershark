@@ -46,8 +46,9 @@ Type checking generated declarations
 "
 cd $projectRoot
 declarationFiles=$(find $expectSuccessTests -type f -name "*.d.ts")
-yarn tsc $declarationFiles --out /dev/null || \
+yarn tsc $declarationFiles --out /dev/null &> /dev/null || \
   (echo -e "\nFAILURE: a generated declaration file failed to type check." && exit 1)
+echo -e "Declaration files valid:\n$declarationFiles"
 
 
 
@@ -90,7 +91,7 @@ Running Elm Error cases
 "
 cd $expectElmErrorTests
 for testFolder in *; do
-  echo "Running generator with $testFolder folder"
+  echo "Running generator with '$testFolder' folder"
   cd $testFolder
   elm make src/*.elm --output=/dev/null &> /dev/null && \
     (echo -e "\nFAILURE: expected '$testFolder' to fail to compile, but it succeeded" && exit 1)
