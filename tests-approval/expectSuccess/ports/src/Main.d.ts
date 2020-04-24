@@ -5,7 +5,14 @@
 export namespace Elm {
   namespace Main {
     export interface App {
-      ports: {};
+      ports: {
+        gotMessage: {
+          send(data: string): void;
+        };
+        sendAppData: {
+          subscribe(callback: (data: unknown) => void): void;
+        };
+      };
     }
     export function init(options: {
       node?: HTMLElement | null;

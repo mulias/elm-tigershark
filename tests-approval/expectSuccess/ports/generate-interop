@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+$BINARY src/Main.elm --output=src/Main.d.ts
