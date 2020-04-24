@@ -4,7 +4,8 @@ set -o errexit
 
 projectRoot=`pwd`
 expectSuccessTests=$projectRoot/tests-approval/expectSuccess
-expectErrorTests=$projectRoot/tests-approval/expectError
+expectLimitationErrorTests=$projectRoot/tests-approval/expectLimitationError
+expectElmErrorTests=$projectRoot/tests-approval/expectElmError
 binary=$projectRoot/bin/tigershark
 
 
@@ -22,13 +23,15 @@ yarn build
 echo "\
 
 =====================
-Running success cases
+Running Success cases
 =====================
 "
 cd $expectSuccessTests
 for testFolder in *; do
   echo "Running generator with '$testFolder' folder"
   cd $testFolder
+  elm make src/*.elm --output=/dev/null &> /dev/null || \
+    (echo -e "\nFAILURE: '$testFolder' elm project failed to compile" && exit 1)
   BINARY=$binary ./generate-interop
   cd - > /dev/null
 done
@@ -62,16 +65,37 @@ echo -e "Output unchanged"
 
 echo "\
 
-===================
-Running error cases
-===================
+==============================
+Running Limitation Error cases
+==============================
 "
-cd $expectErrorTests
+cd $expectLimitationErrorTests
+for testFolder in *; do
+  echo "Running generator with '$testFolder' folder"
+  cd $testFolder
+  elm make src/*.elm --output=/dev/null &> /dev/null || \
+    (echo -e "\nFAILURE: '$testFolder' elm project failed to compile" && exit 1)
+  BINARY=$binary ./generate-interop &> output.txt && \
+    (echo -e "FAILURE: expected '$testFolder' to have non-zero exit code but it succeeded."; exit 1)
+  cd - > /dev/null
+done
+
+
+
+echo "\
+
+=======================
+Running Elm Error cases
+=======================
+"
+cd $expectElmErrorTests
 for testFolder in *; do
   echo "Running generator with $testFolder folder"
   cd $testFolder
+  elm make src/*.elm --output=/dev/null &> /dev/null && \
+    (echo -e "\nFAILURE: expected '$testFolder' to fail to compile, but it succeeded" && exit 1)
   BINARY=$binary ./generate-interop &> output.txt && \
-    (echo -e "Expected $testFolder to have non-zero exit code but it succeeded."; exit 1)
+    (echo -e "FAILURE: expected '$testFolder' to have non-zero exit code but it succeeded."; exit 1)
   cd - > /dev/null
 done
 
