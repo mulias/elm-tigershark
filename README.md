@@ -16,18 +16,21 @@ programs. Based off of `elm-typescript-interop`.
 - [x] Resolve type aliases
 - [x] Include imported ports
 - [x] Multi-module parsing
-- [ ] Good error messages, CLI enhancements
+- [ ] Basic error messages
+- [ ] Basic CLI help output
+- [ ] Elm 0.18 support
 - [ ] Improve ElmTigersharkWebpackPlugin API
-- [ ] Real README documentation
+- [ ] README documentation
 
-### Later enhancements
+### Future enhancements
 
-Things I'm thinking about now, but should be done later.
-
-- Support pre-0.19 Elm.
-- Write custom "isPortsModule" parser so that we don't have to fully parse every
-  imported module to find ones that use ports.
-- Auto generate TS types, encoders, and decoders for message passing ports
+- Auto generate TS types, encoders, and decoders for message passing ports.
+- On init, preemptively read files that we know will be needed.
+- Make read file requests for multiple files at once.
+- Write custom "isPortModule" parser so that we don't have to fully parse a
+  file with `elm-syntax` to find out if it's declared as a `port module`.
+- Cache ASTs in the `Project` so that files don't have to be repeatedly
+  re-parsed.
 
 ### The name
 
