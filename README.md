@@ -9,12 +9,12 @@ so if you don't know what's up start there. While `elm-typescript-interop`
 supports Elm 0.18 well but has known bugs with Elm 0.19, `elm-tigershark` only
 supports Elm 0.19.
 
-### Installation
+## Installation
 
 Tigershark is an npm package and can be installed via `npm i elm-tigershark` or
 similar commands.
 
-### Usage
+## Usage
 
 Unlike `elm-typescript-interop`, tigershark uses CLI arguments similar to the
 Elm compiler in order to specify the Elm input files and generated output file.
@@ -100,14 +100,14 @@ regenerate type declarations when Elm files are changed. The plugin API has not
 yet been finalized.
 
 
-### Roadmap to 1.0.0
+## Roadmap to 1.0.0
 
 - [ ] Fix detection of indirect port use
 - [ ] Basic error messages
 - [ ] Basic CLI help output
 - [ ] Improve ElmTigersharkWebpackPlugin API
 
-### Known issues
+## Known issues
 
 - The current method of finding ports associated to an Elm program is flawed and
   needs to be rewritten. If you declare a port in a file, but then wrap the
@@ -118,7 +118,7 @@ yet been finalized.
   type definition, but calling the port functions from javascript produces a
   runtime error.
 
-### Future enhancements
+## Future enhancements
 
 - Auto generate TS types, encoders, and decoders for message passing ports.
 - On init, preemptively read files that we know will be needed.
@@ -128,7 +128,7 @@ yet been finalized.
 - Cache ASTs in the `Project` so that files don't have to be repeatedly
   re-parsed.
 
-### The name
+## The name
 
 This isn't a useful tool yet so it doesn't have a useful tool name. TypeScript
 and Tigershark sound a bit similar. That's all I've got.
