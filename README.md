@@ -1,3 +1,9 @@
+# Archived: Check out [elm-ts-json](https://github.com/dillonkearns/elm-ts-json)!
+
+Back in March of 2020 I had two big problems in my life: one was a global pandemic the other was that the tool [`elm-typescript-interop`](https://github.com/dillonkearns/elm-typescript-interop) was no longer getting maintained and had some inconvenient limitations.
+
+I couldn't do much about that first problem, so I figured I might as well take a swing at the second one! I built out an MVP and then reached out to Dillon Kearns to talk about transitioning the old `elm-typescript-interop` codebase over to my code. Dillon was supportive, but pointed out a few important edge cases that I wasn't handling, and unfortunately would be very hard to address with my approach. I let the code sit for a while, in the hopes that I'd eventually figure out a solution. Thankfully I didn't have to because a few years later Dillon released `elm-ts-json` which is a much more elegant solution to typed interop. Thanks Dillon!
+
 # Elm Tigershark
 
 Enjoy type-safe interop between Elm and TypeScript with automatically typed
